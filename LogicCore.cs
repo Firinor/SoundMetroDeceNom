@@ -1,6 +1,9 @@
+using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
+public enum CoreValue { BeatsPerMinute, DecibelGate }
 public enum Difficulty { Easy, Hormal, Hard }
 public enum PlayMode { Start, Stop }
 
@@ -8,10 +11,13 @@ public class LogicCore : MonoBehaviour
 {
     private PlayMode playMode = PlayMode.Stop;
     private Difficulty difficulty;
-    private int BeatsPerMinute = 120;
+    private int beatsPerMinute = 120;
+    private int decibelGate = 10;
 
     [SerializeField]
-    private BeatsPerMinuteOperator BeatsPerMinuteOperator;
+    private LerpValueOperator BeatsPerMinuteOperator;
+    [SerializeField]
+    private Slider decibelSlider;
     [SerializeField]
     private TextMeshProUGUI difficultyText;
     [SerializeField]
@@ -24,18 +30,6 @@ public class LogicCore : MonoBehaviour
     [SerializeField]
     private DiagramOperator diagramOperator;
 
-    public void ChangeBeats(bool addTemp)
-    {
-        BeatsPerMinute += 5 * (addTemp? 1: -1);
-        if(BeatsPerMinute < 5) { BeatsPerMinute = 5; }
-        RefreshTextBPM();
-    }
-
-    private void RefreshTextBPM()
-    {
-        BeatsPerMinuteOperator.RefreshText(BeatsPerMinute);
-    }
-
     public void OnResetButton()
     {
         if (!noteBeltOperator.enabled)
@@ -43,7 +37,7 @@ public class LogicCore : MonoBehaviour
             playMode = PlayMode.Start;
             resultOperator.ResetEvent();
             diagramOperator.ResetEvent();
-            noteBeltOperator.SetBPM(BeatsPerMinute);
+            noteBeltOperator.SetBPM(beatsPerMinute);
             noteBeltOperator.enabled = true;
             diagramOperator.enabled = true;
         }
@@ -78,5 +72,18 @@ public class LogicCore : MonoBehaviour
     private void RefreshDifficultyText()
     {
         difficultyText.text = difficulty.ToString();
+    }
+
+    internal void SetCoreValue(CoreValue coreValue, int newValue)
+    {
+        switch(coreValue)
+        {
+            case CoreValue.BeatsPerMinute:
+                beatsPerMinute = newValue;
+                break;
+            case CoreValue.DecibelGate:
+                decibelGate = newValue;
+                break;
+        }
     }
 }
