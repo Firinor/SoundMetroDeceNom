@@ -1,8 +1,9 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum NoteSide { Left, Right }
+public enum Delay { Hary, Slow }
 public enum CoreValue { BeatsPerMinute, DecibelGate }
 public enum Difficulty { Easy, Hormal, Hard }
 public enum PlayMode { Start, Stop }
