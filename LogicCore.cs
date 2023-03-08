@@ -18,8 +18,6 @@ public class LogicCore : MonoBehaviour
     [SerializeField]
     private LerpValueOperator BeatsPerMinuteOperator;
     [SerializeField]
-    private Slider decibelSlider;
-    [SerializeField]
     private TextMeshProUGUI difficultyText;
     [SerializeField]
     private TextMeshProUGUI startText;
@@ -38,9 +36,9 @@ public class LogicCore : MonoBehaviour
             playMode = PlayMode.Start;
             resultOperator.ResetEvent();
             diagramOperator.ResetEvent();
-            noteBeltOperator.SetBPM(beatsPerMinute);
             noteBeltOperator.enabled = true;
             diagramOperator.enabled = true;
+            noteBeltOperator.ResetEvent();
         }
         else
         {
@@ -81,6 +79,8 @@ public class LogicCore : MonoBehaviour
         {
             case CoreValue.BeatsPerMinute:
                 beatsPerMinute = newValue;
+                noteBeltOperator.SetBPM(beatsPerMinute);
+                diagramOperator.SetBPM(beatsPerMinute);
                 break;
             case CoreValue.DecibelGate:
                 decibelGate = newValue;

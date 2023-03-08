@@ -3,7 +3,7 @@ using UnityEngine;
 public class NoteBeltOperator : MonoBehaviour
 {
     [SerializeField]
-    private RectTransform[] notes;
+    private NoteOperator[] notes;
 
     private int BPM;
 
@@ -16,25 +16,28 @@ public class NoteBeltOperator : MonoBehaviour
     
     void Update()
     {
-        float delta = Time.deltaTime * distance * BPM;
+        //float delta = Time.deltaTime * distance * BPM;
 
-        for(int i = 0; i < notes.Length; i++)
-        {
-            Vector3 oldPosition = notes[i].anchoredPosition;
-            if(oldPosition.x > endPosition)
-            {
-                notes[i].anchoredPosition = new Vector3(oldPosition.x - delta, oldPosition.y, 0f);
-            }
-            else
-            {
-                ResetEvent(i);
-            }
-        }
+        //for(int i = 0; i < notes.Length; i++)
+        //{
+        //    Vector3 oldPosition = notes[i].anchoredPosition;
+        //    if(oldPosition.x > endPosition)
+        //    {
+        //        notes[i].anchoredPosition = new Vector3(oldPosition.x - delta, oldPosition.y, 0f);
+        //    }
+        //    else
+        //    {
+        //        ResetEvent(i);
+        //    }
+        //}
     }
 
-    private void ResetEvent(int i)
+    public void ResetEvent()
     {
-        notes[i].anchoredPosition = new Vector3(startPosition, 0f, 0f);
+        for (int i = 0; i < notes.Length; i++)
+        {
+            notes[i].ResetNote();
+        }
     }
 
     public void SetBPM(int newValue)
