@@ -1,10 +1,14 @@
-using System;
 using UnityEngine;
 
 public class DiagramOperator : MonoBehaviour
 {
     [SerializeField]
+    private NoteManager noteManager;
+
+    [SerializeField]
     private RectTransform timeCursor;
+    [SerializeField]
+    private RectTransform decibelCursor;
     [SerializeField]
     private float yCursorPosition;
     [SerializeField]
@@ -16,6 +20,7 @@ public class DiagramOperator : MonoBehaviour
 
     private int beatsPerSecond = 2;
     private float tactDelta;
+    private float tactLenght;
     [SerializeField]
     private float startPosition;
     [SerializeField]
@@ -29,14 +34,15 @@ public class DiagramOperator : MonoBehaviour
     private float maxValue;
 
     [SerializeField]
-    private float thrashold = 0.1f;
+    private float decibelGate = 0.1f;
 
     private void Awake()
     {
         lineRenderer.startWidth = lineWidth;
         lineRenderer.endWidth = lineWidth;
 
-        tactDelta = (endPosition - startPosition)/notesInTact;
+        tactLenght = endPosition - startPosition;
+        tactDelta = tactLenght / notesInTact;
     }
     private void Update()
     {
@@ -48,7 +54,7 @@ public class DiagramOperator : MonoBehaviour
     {
         float soundValue = microphon.GetLoudness();
 
-        if(soundValue < thrashold)
+        if(soundValue < decibelGate)
             soundValue = 0;
 
         soundValue = Mathf.Lerp(minValue, maxValue, soundValue);
@@ -68,17 +74,36 @@ public class DiagramOperator : MonoBehaviour
         //2 såñ= 1 tact
         float delta = Time.deltaTime * tactDelta * beatsPerSecond;
 
-        Vector3 oldPosition = timeCursor.anchoredPosition;
-
-        if (oldPosition.x > endPosition)
-            ResetEvent();
+        if (timeCursor.anchoredPosition.x >= endPosition)
+            MoveToStartEvent();
 
         timeCursor.anchoredPosition = new Vector3(timeCursor.anchoredPosition.x + delta, yCursorPosition, 0f);
+        float cursorPosition = (timeCursor.anchoredPosition.x - startPosition) / tactLenght;// 0 .. 1
+        noteManager.MelodyCheck(cursorPosition);
     }
 
+    public void MoveToStartEvent()
+    {
+        timeCursor.anchoredPosition = new Vector3(timeCursor.anchoredPosition.x - tactLenght, yCursorPosition, 0f);
+        ResetToZero();
+    }
     public void ResetEvent()
     {
         timeCursor.anchoredPosition = new Vector3(startPosition, yCursorPosition, 0f);
+        ResetToZero();
+    }
+
+    private void ResetToZero()
+    {
         lineRenderer.positionCount = 0;
+        noteManager.NewTact();
+    }
+
+    public void SetDecibelGate(float newDecibelGate)
+    {
+        decibelGate = newDecibelGate / 100f;//%
+
+        float decibelValue = Mathf.Lerp(minValue, maxValue, decibelGate);
+        decibelCursor.anchoredPosition = new Vector3(0f, decibelValue, 0f);
     }
 }

@@ -32,6 +32,12 @@ public class Informator : MonoBehaviour
     private Sprite slowResult;
     public static Sprite SlowResult => instance.slowResult;
 
+    [SerializeField]
+    private AudioClip startOfTactNote;
+    public static AudioClip StartOfTactNote => instance.startOfTactNote;
+    [SerializeField]
+    private AudioClip defaulteNote;
+    public static AudioClip DefaulteNote => instance.defaulteNote;
 
     public void Awake()
     {

@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public enum NoteSide { Left, Right }
 public enum Delay { Hary, Slow }
@@ -73,7 +72,7 @@ public class LogicCore : MonoBehaviour
         difficultyText.text = difficulty.ToString();
     }
 
-    internal void SetCoreValue(CoreValue coreValue, int newValue)
+    public void SetCoreValue(CoreValue coreValue, int newValue)
     {
         switch(coreValue)
         {
@@ -84,6 +83,7 @@ public class LogicCore : MonoBehaviour
                 break;
             case CoreValue.DecibelGate:
                 decibelGate = newValue;
+                diagramOperator.SetDecibelGate(decibelGate);
                 break;
         }
     }
