@@ -1,7 +1,5 @@
 using UnityEngine;
 
-
-
 public class NoteManager : MonoBehaviour
 {
     private bool isFirstNote = true;
@@ -11,7 +9,7 @@ public class NoteManager : MonoBehaviour
 
     public void MelodyCheck(float cursorPosition)
     {
-        Debug.Log(cursorPosition);
+        //Debug.Log(cursorPosition);
         if (melody.isOnNote(cursorPosition))
         {
             AudioClip clip;
