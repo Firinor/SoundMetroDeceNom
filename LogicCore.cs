@@ -3,7 +3,7 @@ using UnityEngine;
 
 public enum NoteSide { Left, Right }
 public enum Delay { Hary, Slow }
-public enum CoreValue { BeatsPerMinute, DecibelGate }
+public enum CoreValue { BeatsPerMinute, DecibelGate, Smooth }
 public enum Difficulty { Easy, Hormal, Hard }
 public enum PlayMode { Start, Stop }
 
@@ -13,6 +13,7 @@ public class LogicCore : MonoBehaviour
     private Difficulty difficulty;
     private int beatsPerMinute = 120;
     private int decibelGate = 10;
+    private int smooth = 64;
 
     [SerializeField]
     private LerpValueOperator BeatsPerMinuteOperator;
@@ -27,6 +28,8 @@ public class LogicCore : MonoBehaviour
     private NoteBeltOperator noteBeltOperator;
     [SerializeField]
     private DiagramOperator diagramOperator;
+    [SerializeField]
+    private MicrophonOperator microphonOperator;
 
     public void OnResetButton()
     {
@@ -84,6 +87,10 @@ public class LogicCore : MonoBehaviour
             case CoreValue.DecibelGate:
                 decibelGate = newValue;
                 diagramOperator.SetDecibelGate(decibelGate);
+                break;
+            case CoreValue.Smooth:
+                smooth = newValue;
+                microphonOperator.SetSmooth(smooth);
                 break;
         }
     }

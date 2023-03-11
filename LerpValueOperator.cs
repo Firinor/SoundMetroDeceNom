@@ -22,7 +22,7 @@ public class LerpValueOperator : MonoBehaviour
 
     public void RefreshText(int newValue)
     {
-        text.text = newValue + " " + conditionalLetterDesignation;
+        text.text = newValue + conditionalLetterDesignation;
     }
 
     public void ChangeValue(bool addTemp)

@@ -18,7 +18,7 @@ public class DiagramOperator : MonoBehaviour
     [SerializeField]
     private MicrophonOperator microphon;
 
-    private int beatsPerSecond = 2;
+    private float beatsPerSecond = 2;
     private float tactDelta;
     private float tactLenght;
     [SerializeField]
@@ -65,7 +65,7 @@ public class DiagramOperator : MonoBehaviour
 
     public void SetBPM(int beatsPerMinute)
     {
-        beatsPerSecond = beatsPerMinute / 60;
+        beatsPerSecond = beatsPerMinute / 60f;
     }
     private void MoveCursor()
     {
