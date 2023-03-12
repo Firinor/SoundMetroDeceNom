@@ -6,6 +6,8 @@ public class NoteManager : MonoBehaviour
     private Melody melody = new Melody();
     [SerializeField]
     private AudioSource audioSource;
+    [SerializeField]
+    private NoteBeltOperator beltOperator;
 
     public void MelodyCheck(float cursorPosition)
     {

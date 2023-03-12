@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MicrophonOperator : MonoBehaviour
 {
@@ -6,10 +7,16 @@ public class MicrophonOperator : MonoBehaviour
     private int oldClipPosition;
     private float oldResult;
     private AudioClip microphoneClip;
+    [SerializeField]
+    private LogicCore core;
+    [SerializeField]
+    private Image image;
+    [SerializeField]
+    private Color failColor;
 
     void Start()
     {
-        StartRecording();
+        StartRecording(Microphone.devices[0]);
     }
 
     public void SetSmooth(int smooth)
@@ -17,20 +24,28 @@ public class MicrophonOperator : MonoBehaviour
         sampleWindow = smooth;
     }
 
-    private void StartRecording()
+    public void StartRecording(string microphoneName)
     {
-        string microphoneName = Microphone.devices[0];
-        microphoneClip = Microphone.Start(microphoneName, loop: true, lengthSec: 61, AudioSettings.outputSampleRate);
+        microphoneClip = Microphone.Start(
+            microphoneName,
+            loop: true,
+            lengthSec: core.GetSoundLength(),
+            AudioSettings.outputSampleRate);
+
+        if (microphoneClip == null)
+            image.color = failColor;
+        else
+            image.gameObject.SetActive(false);
     }
 
     public float GetLoudness()
     {
         int clipPosition = Microphone.GetPosition(Microphone.devices[0]);
 
-        Debug.Log(clipPosition);
-
         if(oldClipPosition == clipPosition)
             return oldResult;
+
+        oldClipPosition = clipPosition;
 
         int startPosition = clipPosition - sampleWindow;
 
@@ -39,7 +54,7 @@ public class MicrophonOperator : MonoBehaviour
 
         float[] data = new float[sampleWindow];
         microphoneClip.GetData(data, startPosition);
-
+        
         oldResult = Mathf.Max(data);
         return oldResult;
     }

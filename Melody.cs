@@ -13,6 +13,8 @@ public enum Duration
 
 public class Melody
 {
+    public const int NOTES_COUNT = 8;
+
     public NotePosition[] melody;
     private float[] notesValues;
     private float cursorPosition;

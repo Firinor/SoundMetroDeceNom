@@ -1,9 +1,11 @@
+using System;
 using TMPro;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public enum NoteSide { Left, Right }
 public enum Delay { Hary, Slow }
-public enum CoreValue { BeatsPerMinute, DecibelGate, Smooth }
+public enum CoreValue { BeatsPerMinute, DecibelGate, Smooth, Reaction }
 public enum Difficulty { Easy, Hormal, Hard }
 public enum PlayMode { Start, Stop }
 
@@ -14,6 +16,7 @@ public class LogicCore : MonoBehaviour
     private int beatsPerMinute = 120;
     private int decibelGate = 10;
     private int smooth = 64;
+    private int reaction = 300;
 
     [SerializeField]
     private LerpValueOperator BeatsPerMinuteOperator;
@@ -92,6 +95,24 @@ public class LogicCore : MonoBehaviour
                 smooth = newValue;
                 microphonOperator.SetSmooth(smooth);
                 break;
+            case CoreValue.Reaction:
+                reaction = newValue;
+
+                break;
         }
+    }
+
+    public void ResetMicrophone()
+    {
+        string microphoneName = Microphone.devices[0];
+        microphonOperator.StartRecording(microphoneName);
+    }
+
+    public int GetSoundLength()
+    {
+        float beatsPerSecond = (float)beatsPerMinute / 60f;
+        float soundLength = Melody.NOTES_COUNT / beatsPerSecond;
+        int extraSecondOfSafe = 1;
+        return (int)soundLength + extraSecondOfSafe;//length in seconds
     }
 }

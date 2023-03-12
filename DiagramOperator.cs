@@ -10,8 +10,6 @@ public class DiagramOperator : MonoBehaviour
     [SerializeField]
     private RectTransform decibelCursor;
     [SerializeField]
-    private float yCursorPosition;
-    [SerializeField]
     private LineRenderer lineRenderer;
     [SerializeField]
     private float lineWidth;
@@ -77,19 +75,19 @@ public class DiagramOperator : MonoBehaviour
         if (timeCursor.anchoredPosition.x >= endPosition)
             MoveToStartEvent();
 
-        timeCursor.anchoredPosition = new Vector3(timeCursor.anchoredPosition.x + delta, yCursorPosition, 0f);
+        timeCursor.anchoredPosition = new Vector3(timeCursor.anchoredPosition.x + delta, 0f, 0f);
         float cursorPosition = (timeCursor.anchoredPosition.x - startPosition) / tactLenght;// 0 .. 1
         noteManager.MelodyCheck(cursorPosition);
     }
 
     public void MoveToStartEvent()
     {
-        timeCursor.anchoredPosition = new Vector3(timeCursor.anchoredPosition.x - tactLenght, yCursorPosition, 0f);
+        timeCursor.anchoredPosition = new Vector3(timeCursor.anchoredPosition.x - tactLenght, 0f, 0f);
         ResetToZero();
     }
     public void ResetEvent()
     {
-        timeCursor.anchoredPosition = new Vector3(startPosition, yCursorPosition, 0f);
+        timeCursor.anchoredPosition = new Vector3(startPosition, 0f, 0f);
         ResetToZero();
     }
 

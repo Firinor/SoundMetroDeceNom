@@ -5,6 +5,8 @@ using UnityEngine.UI;
 public class LerpValueOperator : MonoBehaviour
 {
     [SerializeField]
+    private float min = 1;
+    [SerializeField]
     private float step = 1;
     [SerializeField]
     private float max = 500;
@@ -20,14 +22,25 @@ public class LerpValueOperator : MonoBehaviour
     [SerializeField]
     private string conditionalLetterDesignation;
 
+    private void Awake()
+    {
+        SetSliderMinMax(min, max);
+    }
+
+    public void SetSliderMinMax(float min, float max)
+    {
+        slider.minValue = min;
+        slider.maxValue = max;
+    }
+
     public void RefreshText(int newValue)
     {
         text.text = newValue + conditionalLetterDesignation;
     }
 
-    public void ChangeValue(bool addTemp)
+    public void ChangeValue(bool isAddition)
     {
-        slider.value += step * (addTemp ? 1 : -1) / max;
+        slider.value += isAddition ? step : -step;
         //if(beatsPerMinute < beatsStep) { beatsPerMinute = beatsStep; }
         //if (beatsPerMinute > beatsPerMinuteMax) { beatsPerMinute = beatsPerMinuteMax; }
         //RefreshTextBPM();
@@ -35,7 +48,7 @@ public class LerpValueOperator : MonoBehaviour
 
     public void ChangeValue()
     {
-        int newValue = (int)Mathf.Lerp(step, max, slider.value);
+        int newValue = (int)slider.value;
         logicCore.SetCoreValue(coreValue, newValue);
         RefreshText(newValue);
     }
