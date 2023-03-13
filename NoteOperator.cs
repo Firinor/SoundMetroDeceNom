@@ -41,17 +41,19 @@ public class NoteOperator : MonoBehaviour
         }
     }
 
-    public void SetUncorrectNote(Delay delay)
+    public void SetUncorrectNote(NoteCheckResult noteCheckResult)
     {
         resultImage.enabled = true;
-        switch (delay)
+        switch (noteCheckResult)
         {
-            case Delay.Hary:
+            case NoteCheckResult.Fast:
                 resultImage.sprite = Informator.HaryResult;
                 break;
-            case Delay.Slow:
+            case NoteCheckResult.Slow:
                 resultImage.sprite = Informator.SlowResult;
                 break;
+            default:
+                return;
         }
         switch (side)
         {

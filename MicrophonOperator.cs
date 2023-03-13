@@ -11,8 +11,6 @@ public class MicrophonOperator : MonoBehaviour
     private LogicCore core;
     [SerializeField]
     private Image image;
-    [SerializeField]
-    private Color failColor;
 
     void Start()
     {
@@ -32,15 +30,17 @@ public class MicrophonOperator : MonoBehaviour
             lengthSec: core.GetSoundLength(),
             AudioSettings.outputSampleRate);
 
-        if (microphoneClip == null)
-            image.color = failColor;
-        else
+        if (microphoneClip != null)
             image.gameObject.SetActive(false);
+    }
+    public int GetPosition()
+    {
+        return Microphone.GetPosition(Microphone.devices[0]);
     }
 
     public float GetLoudness()
     {
-        int clipPosition = Microphone.GetPosition(Microphone.devices[0]);
+        int clipPosition = GetPosition();
 
         if(oldClipPosition == clipPosition)
             return oldResult;

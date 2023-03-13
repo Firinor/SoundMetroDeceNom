@@ -4,7 +4,6 @@ using UnityEngine;
 using static UnityEngine.EventSystems.EventTrigger;
 
 public enum NoteSide { Left, Right }
-public enum Delay { Hary, Slow }
 public enum CoreValue { BeatsPerMinute, DecibelGate, Smooth, Reaction }
 public enum Difficulty { Easy, Hormal, Hard }
 public enum PlayMode { Start, Stop }
@@ -84,7 +83,7 @@ public class LogicCore : MonoBehaviour
         {
             case CoreValue.BeatsPerMinute:
                 beatsPerMinute = newValue;
-                noteBeltOperator.SetBPM(beatsPerMinute);
+                //noteBeltOperator.SetBPM(beatsPerMinute);
                 diagramOperator.SetBPM(beatsPerMinute);
                 break;
             case CoreValue.DecibelGate:

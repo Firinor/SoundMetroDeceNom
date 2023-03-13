@@ -16,41 +16,36 @@ public class Melody
     public const int NOTES_COUNT = 8;
 
     public NotePosition[] melody;
-    private float[] notesValues;
+
     private float cursorPosition;
+
     private int notePosition;
+    private int beatsPerMinute;
+    private int notesPerTact = 4;
 
     public Melody()
     {
         melody = new NotePosition[8];
-        for(int i = 0; i < melody.Length; i++)
+
+        float beatsPerSecond = beatsPerMinute / 60;
+        float tactLength = notesPerTact / beatsPerSecond;
+
+        int melodyCursorSamplePosition =  (int)(AudioSettings.outputSampleRate * tactLength / (float)Duration.EIGHTH);
+
+        for (int i = 0; i < melody.Length; i++)
         {
             melody[i] = new NotePosition
             {
+                duration = Duration.EIGHTH,
+                position = melodyCursorSamplePosition * (i+1),
                 noteTipe = NoteTipe.Note,
-                duration = Duration.EIGHTH
             };
-        }
-        GenetareValues();
-    }
-
-    private void GenetareValues()
-    {
-        float melodyCursorPosition = 0;
-
-        notesValues = new float[melody.Length];
-        for (int i = 0; i < melody.Length; i++)
-        {
-            notesValues[i] = melodyCursorPosition;
-            melodyCursorPosition += 1 / (float)melody[i].duration;
         }
     }
 
     internal bool isOnNote(float cursorPosition)
     {
-        cursorPosition = Mathf.Clamp(cursorPosition, 0, 1);
-
-        if(notePosition < notesValues.Length && cursorPosition > notesValues[notePosition])
+        if(notePosition < melody.Length && cursorPosition > melody[notePosition].position)
         {
             notePosition++;
             return true;

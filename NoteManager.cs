@@ -1,5 +1,6 @@
 using UnityEngine;
 
+public enum NoteCheckResult { None, Correct, Fast, Slow}
 public class NoteManager : MonoBehaviour
 {
     private bool isFirstNote = true;
@@ -9,7 +10,7 @@ public class NoteManager : MonoBehaviour
     [SerializeField]
     private NoteBeltOperator beltOperator;
 
-    public void MelodyCheck(float cursorPosition)
+    public NoteCheckResult MelodyCheck(float cursorPosition, int noteIndex)
     {
         //Debug.Log(cursorPosition);
         if (melody.isOnNote(cursorPosition))
@@ -28,6 +29,7 @@ public class NoteManager : MonoBehaviour
             audioSource.clip = clip;
             audioSource.Play();
         }
+        return NoteCheckResult.None;
     }
 
     public void NewTact()

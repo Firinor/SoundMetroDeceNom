@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class DiagramOperator : MonoBehaviour
@@ -76,8 +77,6 @@ public class DiagramOperator : MonoBehaviour
             MoveToStartEvent();
 
         timeCursor.anchoredPosition = new Vector3(timeCursor.anchoredPosition.x + delta, 0f, 0f);
-        float cursorPosition = (timeCursor.anchoredPosition.x - startPosition) / tactLenght;// 0 .. 1
-        noteManager.MelodyCheck(cursorPosition);
     }
 
     public void MoveToStartEvent()
