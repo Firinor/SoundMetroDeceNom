@@ -4,12 +4,9 @@ public class NoteBeltOperator : MonoBehaviour
 {
     [SerializeField]
     private NoteOperator[] notes;
-    [SerializeField]
-    private MicrophonOperator microphon;
-    [SerializeField]
-    private NoteManager noteManager;
 
     private int noteIndex = 0;
+    private float melodyPosition = 0;
 
     [SerializeField]
     private float distance;
@@ -17,9 +14,21 @@ public class NoteBeltOperator : MonoBehaviour
     private float startPosition;
     [SerializeField]
     private float endPosition;
-    
-    void Update()
+
+    private int semplesRate => CoreValuesHUB.SampleRate.GetValue();
+
+    //private MicrophonOperator microphonOperator => (MicrophonOperator)CoreHUB.MicrophonOperator.GetValue();
+    private NoteManager noteManager => (NoteManager)CoreHUB.NoteManager.GetValue();
+
+    private void Awake()
     {
+        CoreHUB.NoteBeltOperator.SetValue(this);
+        enabled = CoreValuesHUB.PlayMode.GetValue() == PlayMode.Start;
+    }
+
+    private void Update()
+    {
+        MoveCursorPosition(Time.deltaTime);
         NoteCheck();
         //float delta = Time.deltaTime * distance * BPM;
 
@@ -37,32 +46,39 @@ public class NoteBeltOperator : MonoBehaviour
         //}
     }
 
+    private void MoveCursorPosition(float deltaTime)
+    {
+        melodyPosition += deltaTime * semplesRate;
+        CoreValuesHUB.MelodyPosition.SetValue(melodyPosition);
+    }
+
     private void NoteCheck()
     {
-        int soundPosition = microphon.GetPosition();
-
-        NoteCheckResult result = noteManager.MelodyCheck(soundPosition, noteIndex);
+        NoteCheckResult result = noteManager.MelodySuccessNoteCheck((int)melodyPosition);
 
         switch (result)
         {
             case NoteCheckResult.None:
                 return;
-            case NoteCheckResult.Correct:
+            case NoteCheckResult.Success:
                 notes[noteIndex].SetCorrectNote();
+                noteIndex++;
                 break;
             case NoteCheckResult.Fast:
             case NoteCheckResult.Slow:
                 notes[noteIndex].SetUncorrectNote(result);
+                noteIndex++;
                 break;
             default:
                 return;
         }
-        noteIndex++;
     }
 
     public void ResetEvent()
     {
         noteIndex = 0;
+        melodyPosition = 0;
+        CoreValuesHUB.MelodyPosition.SetValue(melodyPosition);
         for (int i = 0; i < notes.Length; i++)
         {
             notes[i].ResetNote();

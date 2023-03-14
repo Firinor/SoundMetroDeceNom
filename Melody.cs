@@ -1,15 +1,5 @@
+using System;
 using UnityEngine;
-
-public enum NoteTipe { Note, Pause }
-
-public enum Duration
-{
-    WHOLE = 1,
-    HALF = 2,
-    QUARTER = 4,
-    EIGHTH = 8,
-    SIXTEENTH = 16,
-}
 
 public class Melody
 {
@@ -19,44 +9,64 @@ public class Melody
 
     private float cursorPosition;
 
-    private int notePosition;
-    private int beatsPerMinute;
+    private int noteIndex;
     private int notesPerTact = 4;
 
-    public Melody()
+    public Melody(int beatsPerMinute)
+    {
+        SetNewBeatsPerMinute(beatsPerMinute);
+    }
+
+    public void SetNewBeatsPerMinute(int beatsPerMinute)
     {
         melody = new NotePosition[8];
 
-        float beatsPerSecond = beatsPerMinute / 60;
+        float beatsPerSecond = beatsPerMinute / 60f;
         float tactLength = notesPerTact / beatsPerSecond;
 
-        int melodyCursorSamplePosition =  (int)(AudioSettings.outputSampleRate * tactLength / (float)Duration.EIGHTH);
+        float melodyLength = (float)AudioSettings.outputSampleRate * tactLength;
+
+        CoreValuesHUB.MelodyLength.SetValue(melodyLength);
+
+        int melodyCursorSamplePosition = (int)(melodyLength / (float)Duration.EIGHTH);
+        int positionShift = melodyCursorSamplePosition / 2;
 
         for (int i = 0; i < melody.Length; i++)
         {
             melody[i] = new NotePosition
             {
                 duration = Duration.EIGHTH,
-                position = melodyCursorSamplePosition * (i+1),
-                noteTipe = NoteTipe.Note,
+                position = positionShift + melodyCursorSamplePosition * i,
+                noteTipe = NoteTipe.Note
             };
+            //Debug.Log($"note {i} position {melody[i].position}");
         }
     }
 
     internal bool isOnNote(float cursorPosition)
     {
-        if(notePosition < melody.Length && cursorPosition > melody[notePosition].position)
+        if(noteIndex < melody.Length && cursorPosition >= melody[noteIndex].position)
         {
-            notePosition++;
+            //Debug.Log(notePosition);
             return true;
         }
         
         return false;
     }
 
+    public void NextNote()
+    {
+        noteIndex++;
+    }
+
     public void ResetNotePosition()
     {
-        notePosition = 0;
+        noteIndex = 0;
+    }
+
+    internal int GetCurrentNotePosition()
+    {
+        return melody[noteIndex].position;
     }
 
     public class NotePosition

@@ -4,9 +4,6 @@ using UnityEngine;
 public class DiagramOperator : MonoBehaviour
 {
     [SerializeField]
-    private NoteManager noteManager;
-
-    [SerializeField]
     private RectTransform timeCursor;
     [SerializeField]
     private RectTransform decibelCursor;
@@ -14,34 +11,29 @@ public class DiagramOperator : MonoBehaviour
     private LineRenderer lineRenderer;
     [SerializeField]
     private float lineWidth;
-    [SerializeField]
-    private MicrophonOperator microphon;
 
-    private float beatsPerSecond = 2;
-    private float tactDelta;
-    private float tactLenght;
     [SerializeField]
     private float startPosition;
     [SerializeField]
     private float endPosition;
-    [SerializeField]
-    private float notesInTact = 4;
 
     [SerializeField]
     private float minValue;
     [SerializeField]
     private float maxValue;
 
-    [SerializeField]
-    private float decibelGate = 0.1f;
+    private float decibelGate => CoreValuesHUB.DecibelGate.GetValue();
+
+    private MicrophonOperator microphonOperator => (MicrophonOperator)CoreHUB.MicrophonOperator.GetValue();
+    private NoteManager noteManager => (NoteManager)CoreHUB.NoteManager.GetValue();
+    private NoteBeltOperator noteBeltOperator => (NoteBeltOperator)CoreHUB.NoteBeltOperator.GetValue();
 
     private void Awake()
     {
+        CoreHUB.DiagramOperator.SetValue(this);
+
         lineRenderer.startWidth = lineWidth;
         lineRenderer.endWidth = lineWidth;
-
-        tactLenght = endPosition - startPosition;
-        tactDelta = tactLenght / notesInTact;
     }
     private void Update()
     {
@@ -51,7 +43,7 @@ public class DiagramOperator : MonoBehaviour
 
     private void DrawVolumeLine()
     {
-        float soundValue = microphon.GetLoudness();
+        float soundValue = microphonOperator.GetLoudness();
 
         if(soundValue < decibelGate)
             soundValue = 0;
@@ -62,44 +54,30 @@ public class DiagramOperator : MonoBehaviour
         lineRenderer.SetPosition(lineRenderer.positionCount - 1, nextPosition);
     }
 
-    public void SetBPM(int beatsPerMinute)
-    {
-        beatsPerSecond = beatsPerMinute / 60f;
-    }
     private void MoveCursor()
     {
-        //120 bpm 4/4
-        //2 bps = 1/2 tact
-        //2 såñ= 1 tact
-        float delta = Time.deltaTime * tactDelta * beatsPerSecond;
+        float delta = CoreValuesHUB.MelodyPosition.GetValue() / CoreValuesHUB.MelodyLength.GetValue();
 
-        if (timeCursor.anchoredPosition.x >= endPosition)
-            MoveToStartEvent();
+        if (delta > 1)
+        {
+            delta = 0;
+            NewTact();
+        }
 
-        timeCursor.anchoredPosition = new Vector3(timeCursor.anchoredPosition.x + delta, 0f, 0f);
+        float xPosition = Mathf.Lerp(startPosition, endPosition, delta);
+
+        timeCursor.anchoredPosition = new Vector3(xPosition, 0f, 0f);
     }
 
-    public void MoveToStartEvent()
-    {
-        timeCursor.anchoredPosition = new Vector3(timeCursor.anchoredPosition.x - tactLenght, 0f, 0f);
-        ResetToZero();
-    }
-    public void ResetEvent()
+    public void NewTact()
     {
         timeCursor.anchoredPosition = new Vector3(startPosition, 0f, 0f);
-        ResetToZero();
-    }
-
-    private void ResetToZero()
-    {
         lineRenderer.positionCount = 0;
         noteManager.NewTact();
     }
 
-    public void SetDecibelGate(float newDecibelGate)
+    public void SetDecibelGate()
     {
-        decibelGate = newDecibelGate / 100f;//%
-
         float decibelValue = Mathf.Lerp(minValue, maxValue, decibelGate);
         decibelCursor.anchoredPosition = new Vector3(0f, decibelValue, 0f);
     }

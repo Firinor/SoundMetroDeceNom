@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,11 +9,17 @@ public class MicrophonOperator : MonoBehaviour
     private float oldResult;
     private AudioClip microphoneClip;
     [SerializeField]
-    private LogicCore core;
-    [SerializeField]
     private Image image;
 
-    void Start()
+    private LogicCore logicCore => (LogicCore)CoreHUB.LogicCore.GetValue();
+
+    private void Awake()
+    {
+        CoreHUB.MicrophonOperator.SetValue(this);
+        CoreValuesHUB.SampleRate.SetValue(AudioSettings.outputSampleRate);
+    }
+
+    private void Start()
     {
         StartRecording(Microphone.devices[0]);
     }
@@ -27,20 +34,34 @@ public class MicrophonOperator : MonoBehaviour
         microphoneClip = Microphone.Start(
             microphoneName,
             loop: true,
-            lengthSec: core.GetSoundLength(),
+            lengthSec: logicCore.GetSoundLength(),
             AudioSettings.outputSampleRate);
 
         if (microphoneClip != null)
             image.gameObject.SetActive(false);
     }
-    public int GetPosition()
+    public int GetMicrophonePosition()
     {
         return Microphone.GetPosition(Microphone.devices[0]);
     }
 
+    public float GetLoudness(int clipPosition, int sampleWindow)
+    {
+        int startPosition = clipPosition - sampleWindow;
+
+        if (startPosition < 0)
+            startPosition = 0;
+
+        float[] data = new float[sampleWindow];
+        microphoneClip.GetData(data, startPosition);
+
+        oldResult = Mathf.Max(data);
+        return oldResult;
+    }
+
     public float GetLoudness()
     {
-        int clipPosition = GetPosition();
+        int clipPosition = GetMicrophonePosition();
 
         if(oldClipPosition == clipPosition)
             return oldResult;
@@ -50,7 +71,7 @@ public class MicrophonOperator : MonoBehaviour
         int startPosition = clipPosition - sampleWindow;
 
         if(startPosition < 0)
-            return 0;
+            startPosition = 0;
 
         float[] data = new float[sampleWindow];
         microphoneClip.GetData(data, startPosition);

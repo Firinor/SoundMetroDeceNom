@@ -18,6 +18,11 @@ public class ResultOperator : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI lowTemp;
 
+    private void Awake()
+    {
+        CoreHUB.ResultOperator.SetValue(this);
+    }
+
     public void HightVolume()
     {
         Add(hightVolume);
