@@ -23,10 +23,12 @@ public class DiagramOperator : MonoBehaviour
     private float maxValue;
 
     private float decibelGate => CoreValuesHUB.DecibelGate.GetValue();
+    private float melodyPosition => CoreValuesHUB.MelodyPosition.GetValue();
+    private float oldMelodyPosition = 0;
 
     private MicrophonOperator microphonOperator => (MicrophonOperator)CoreHUB.MicrophonOperator.GetValue();
     private NoteManager noteManager => (NoteManager)CoreHUB.NoteManager.GetValue();
-    private NoteBeltOperator noteBeltOperator => (NoteBeltOperator)CoreHUB.NoteBeltOperator.GetValue();
+    //private NoteBeltOperator noteBeltOperator => (NoteBeltOperator)CoreHUB.NoteBeltOperator.GetValue();
 
     private void Awake()
     {
@@ -43,25 +45,42 @@ public class DiagramOperator : MonoBehaviour
 
     private void DrawVolumeLine()
     {
-        float soundValue = microphonOperator.GetLoudness();
+        if (oldMelodyPosition == melodyPosition)
+            return;
 
-        if(soundValue < decibelGate)
+        //while (oldMelodyPosition < melodyPosition)
+        //{
+        //    oldMelodyPosition += ;
+
+        //    float soundValue = microphonOperator.GetLoudness();
+        //    soundValue = DrawVolumePoint(soundValue);
+
+
+        //}
+
+
+    }
+
+    private float DrawVolumePoint(float soundValue)
+    {
+        if (soundValue < decibelGate)
             soundValue = 0;
 
         soundValue = Mathf.Lerp(minValue, maxValue, soundValue);
         lineRenderer.positionCount++;
         Vector3 nextPosition = new Vector3(timeCursor.anchoredPosition.x, soundValue, 0f);
         lineRenderer.SetPosition(lineRenderer.positionCount - 1, nextPosition);
+        return soundValue;
     }
 
     private void MoveCursor()
     {
-        float delta = CoreValuesHUB.MelodyPosition.GetValue() / CoreValuesHUB.MelodyLength.GetValue();
+        float delta = melodyPosition / CoreValuesHUB.MelodyLength.GetValue();
 
-        if (delta > 1)
+        if (delta >= 1)
         {
             delta = 0;
-            NewTact();
+            ResetEvent();
         }
 
         float xPosition = Mathf.Lerp(startPosition, endPosition, delta);
@@ -69,10 +88,11 @@ public class DiagramOperator : MonoBehaviour
         timeCursor.anchoredPosition = new Vector3(xPosition, 0f, 0f);
     }
 
-    public void NewTact()
+    public void ResetEvent()
     {
         timeCursor.anchoredPosition = new Vector3(startPosition, 0f, 0f);
         lineRenderer.positionCount = 0;
+        oldMelodyPosition = 0;
         noteManager.NewTact();
     }
 

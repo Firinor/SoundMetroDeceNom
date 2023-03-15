@@ -10,6 +10,9 @@ public static class CoreValuesHUB
     public static InstanceCell<float> MelodyPosition = new InstanceCell<float>();
     public static InstanceCell<float> MelodyLength = new InstanceCell<float>();
 
+    public static InstanceCell<float> MelodyStartPosition = new InstanceCell<float>();
+    public static InstanceCell<float> MelodyEndPosition = new InstanceCell<float>();
+
     public static InstanceCell<int> BeatsPerMinute = new InstanceCell<int>();
     public static InstanceCell<float> DecibelGate = new InstanceCell<float>();
     public static InstanceCell<int> Smooth = new InstanceCell<int>();

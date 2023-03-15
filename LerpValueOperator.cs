@@ -12,8 +12,6 @@ public class LerpValueOperator : MonoBehaviour
     private float max = 500;
 
     [SerializeField]
-    private LogicCore logicCore;
-    [SerializeField]
     private CoreValue coreValue;
     [SerializeField]
     private TextMeshProUGUI text;
@@ -21,6 +19,8 @@ public class LerpValueOperator : MonoBehaviour
     private Slider slider;
     [SerializeField]
     private string conditionalLetterDesignation;
+
+    private LogicCore logicCore => (LogicCore)CoreHUB.LogicCore.GetValue();
 
     private void Awake()
     {

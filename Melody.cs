@@ -29,7 +29,7 @@ public class Melody
         CoreValuesHUB.MelodyLength.SetValue(melodyLength);
 
         int melodyCursorSamplePosition = (int)(melodyLength / (float)Duration.EIGHTH);
-        int positionShift = melodyCursorSamplePosition / 2;
+        int positionShift = melodyCursorSamplePosition / 3;
 
         for (int i = 0; i < melody.Length; i++)
         {

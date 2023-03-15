@@ -63,20 +63,11 @@ public class MicrophonOperator : MonoBehaviour
     {
         int clipPosition = GetMicrophonePosition();
 
-        if(oldClipPosition == clipPosition)
+        if (oldClipPosition == clipPosition)
             return oldResult;
 
         oldClipPosition = clipPosition;
 
-        int startPosition = clipPosition - sampleWindow;
-
-        if(startPosition < 0)
-            startPosition = 0;
-
-        float[] data = new float[sampleWindow];
-        microphoneClip.GetData(data, startPosition);
-        
-        oldResult = Mathf.Max(data);
-        return oldResult;
+        return GetLoudness(clipPosition, sampleWindow);
     }
 }

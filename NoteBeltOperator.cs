@@ -17,7 +17,7 @@ public class NoteBeltOperator : MonoBehaviour
 
     private int semplesRate => CoreValuesHUB.SampleRate.GetValue();
 
-    //private MicrophonOperator microphonOperator => (MicrophonOperator)CoreHUB.MicrophonOperator.GetValue();
+    private MicrophonOperator microphonOperator => (MicrophonOperator)CoreHUB.MicrophonOperator.GetValue();
     private NoteManager noteManager => (NoteManager)CoreHUB.NoteManager.GetValue();
 
     private void Awake()
@@ -48,13 +48,16 @@ public class NoteBeltOperator : MonoBehaviour
 
     private void MoveCursorPosition(float deltaTime)
     {
-        melodyPosition += deltaTime * semplesRate;
-        CoreValuesHUB.MelodyPosition.SetValue(melodyPosition);
+        //melodyPosition += deltaTime * semplesRate;//
+        CoreValuesHUB.MelodyPosition.SetValue(microphonOperator.GetMicrophonePosition());
     }
 
     private void NoteCheck()
     {
-        NoteCheckResult result = noteManager.MelodySuccessNoteCheck((int)melodyPosition);
+        if (noteIndex >= notes.Length)
+            return;
+
+        NoteCheckResult result = noteManager.MelodySuccessNoteCheck();
 
         switch (result)
         {
@@ -82,6 +85,14 @@ public class NoteBeltOperator : MonoBehaviour
         for (int i = 0; i < notes.Length; i++)
         {
             notes[i].ResetNote();
+        }
+    }
+
+    public void ReflectEvent()
+    {
+        for (int i = 0; i < notes.Length; i++)
+        {
+            notes[i].SetReflectPosition();
         }
     }
 }

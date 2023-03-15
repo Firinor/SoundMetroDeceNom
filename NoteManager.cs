@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-using static Melody;
 
 public class NoteManager : MonoBehaviour
 {
@@ -10,6 +8,7 @@ public class NoteManager : MonoBehaviour
     private bool isNoteReadyToCheck = false;
     private int noteCheckStartPosition = 0;
     private int noteCheckEndPosition = 0;
+    private int reactionInSamples = 0;
 
     [SerializeField]
     private AudioSource audioSource;
@@ -20,6 +19,7 @@ public class NoteManager : MonoBehaviour
     private float decibelGate => CoreValuesHUB.DecibelGate.GetValue();
 
     private int reaction => CoreValuesHUB.Reaction.GetValue();
+    private int sampleRate => CoreValuesHUB.SampleRate.GetValue();
 
     private void Awake()
     {
@@ -40,11 +40,8 @@ public class NoteManager : MonoBehaviour
 
     private void MelodySoundByPositionCheck(float cursorPosition)
     {
-        //Debug.Log(cursorPosition);
         if (melody.isOnNote(cursorPosition))
         {
-            //Debug.Log("mic " + microphonOperator.GetMicrophonePosition());
-            //Debug.Log("cur " + cursorPosition + " " + noteIndex);
             AudioClip clip;
             if (isFirstNote)
             {
@@ -58,38 +55,34 @@ public class NoteManager : MonoBehaviour
 
             audioSource.clip = clip;
             audioSource.Play();
-
             isNoteReadyToCheck = true;
-            noteCheckStartPosition = melody.GetCurrentNotePosition();
-            Debug.Log("noteCheckStartPosition " + noteCheckStartPosition);
-            noteCheckEndPosition = noteCheckStartPosition + reaction;
-            Debug.Log("noteCheckEndPosition " + noteCheckEndPosition);
+            //reaction in milliseconds. It should be divided by 1000 to convert in seconds
+            reactionInSamples = (int)(reaction / 1000f * sampleRate); 
+            noteCheckStartPosition = melody.GetCurrentNotePosition() - reactionInSamples / 2;
+            noteCheckEndPosition = noteCheckStartPosition + reactionInSamples;
             melody.NextNote();
         }
     }
 
-    public NoteCheckResult MelodySuccessNoteCheck(int cursorPosition)
+    public NoteCheckResult MelodySuccessNoteCheck()
     {
         if(!isNoteReadyToCheck)
             return NoteCheckResult.None;
-
-        if (microphonOperator.GetMicrophonePosition() < noteCheckEndPosition)
+        
+        if (noteCheckEndPosition > microphonOperator.GetMicrophonePosition())
             return NoteCheckResult.None;
-
-        Debug.Log("cursorPosition " + cursorPosition);
 
         isNoteReadyToCheck = false;
 
-        float soundOnStartValue = microphonOperator.GetLoudness(cursorPosition, reaction);
+        float soundOnStartValue = microphonOperator.GetLoudness(noteCheckStartPosition, reactionInSamples);
         bool volumeOnStart = soundOnStartValue >= decibelGate;
-        Debug.Log("soundOnStartValue " + soundOnStartValue);
         
         if (volumeOnStart)
             return NoteCheckResult.Fast;
 
-        float soundOnEndValue = microphonOperator.GetLoudness(cursorPosition, reaction);
+        float soundOnEndValue = microphonOperator.GetLoudness(noteCheckEndPosition, reactionInSamples);
         bool volumeOnEnd = soundOnEndValue >= decibelGate;
-        Debug.Log("soundOnEndValue " + soundOnEndValue);
+        
         if (!volumeOnEnd)
             return NoteCheckResult.Slow;
 

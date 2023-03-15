@@ -4,8 +4,6 @@ using UnityEngine;
 public class LogicCore : MonoBehaviour
 {
     [SerializeField]
-    private LerpValueOperator BeatsPerMinuteOperator;
-    [SerializeField]
     private TextMeshProUGUI difficultyText;
     [SerializeField]
     private TextMeshProUGUI startText;
@@ -44,7 +42,7 @@ public class LogicCore : MonoBehaviour
     {
         CoreValuesHUB.PlayMode.SetValue(PlayMode.Start);
         //resultOperator.ResetEvent();
-        diagramOperator.NewTact();
+        diagramOperator.ResetEvent();
         noteBeltOperator.enabled = true;
         diagramOperator.enabled = true;
         startText.text = PlayMode.Stop.ToString();
@@ -93,6 +91,7 @@ public class LogicCore : MonoBehaviour
                 break;
             case CoreValue.Reaction:
                 CoreValuesHUB.Reaction.SetValue(newValue);
+                noteBeltOperator.ReflectEvent();
                 break;
         }
     }
