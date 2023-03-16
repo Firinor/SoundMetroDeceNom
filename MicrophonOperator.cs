@@ -1,12 +1,8 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class MicrophonOperator : MonoBehaviour
 {
-    private int sampleWindow = 64;
-    private int oldClipPosition;
-    private float oldResult;
     private AudioClip microphoneClip;
     [SerializeField]
     private Image image;
@@ -24,23 +20,18 @@ public class MicrophonOperator : MonoBehaviour
         StartRecording(Microphone.devices[0]);
     }
 
-    public void SetSmooth(int smooth)
-    {
-        sampleWindow = smooth;
-    }
-
     public void StartRecording(string microphoneName)
     {
         microphoneClip = Microphone.Start(
             microphoneName,
             loop: true,
-            lengthSec: logicCore.GetSoundLength(),
+            lengthSec: (int)(logicCore.GetSoundLengthInSeconds() + 1),//extra second of safe
             AudioSettings.outputSampleRate);
 
         if (microphoneClip != null)
             image.gameObject.SetActive(false);
     }
-    public int GetMicrophonePosition()
+    public int GetMicrophonePositionInSamples()
     {
         return Microphone.GetPosition(Microphone.devices[0]);
     }
@@ -55,19 +46,6 @@ public class MicrophonOperator : MonoBehaviour
         float[] data = new float[sampleWindow];
         microphoneClip.GetData(data, startPosition);
 
-        oldResult = Mathf.Max(data);
-        return oldResult;
-    }
-
-    public float GetLoudness()
-    {
-        int clipPosition = GetMicrophonePosition();
-
-        if (oldClipPosition == clipPosition)
-            return oldResult;
-
-        oldClipPosition = clipPosition;
-
-        return GetLoudness(clipPosition, sampleWindow);
+        return Mathf.Max(data);
     }
 }

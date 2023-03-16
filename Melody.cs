@@ -24,9 +24,10 @@ public class Melody
         float beatsPerSecond = beatsPerMinute / 60f;
         float tactLength = notesPerTact / beatsPerSecond;
 
-        float melodyLength = (float)AudioSettings.outputSampleRate * tactLength;
+        int melodyLength = (int)(AudioSettings.outputSampleRate * tactLength);
 
-        CoreValuesHUB.MelodyLength.SetValue(melodyLength);
+        CoreValuesHUB.MelodyLengthInSamples.SetValue(melodyLength);
+        CoreValuesHUB.MelodyLengthInSec.SetValue(tactLength);
 
         int melodyCursorSamplePosition = (int)(melodyLength / (float)Duration.EIGHTH);
         int positionShift = melodyCursorSamplePosition / 3;

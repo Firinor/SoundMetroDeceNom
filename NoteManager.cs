@@ -35,7 +35,7 @@ public class NoteManager : MonoBehaviour
 
     private void Update()
     {
-        MelodySoundByPositionCheck(CoreValuesHUB.MelodyPosition.GetValue());
+        MelodySoundByPositionCheck(CoreValuesHUB.MelodyPositionInSamples.GetValue());
     }
 
     private void MelodySoundByPositionCheck(float cursorPosition)
@@ -69,7 +69,7 @@ public class NoteManager : MonoBehaviour
         if(!isNoteReadyToCheck)
             return NoteCheckResult.None;
         
-        if (noteCheckEndPosition > microphonOperator.GetMicrophonePosition())
+        if (noteCheckEndPosition > microphonOperator.GetMicrophonePositionInSamples())
             return NoteCheckResult.None;
 
         isNoteReadyToCheck = false;

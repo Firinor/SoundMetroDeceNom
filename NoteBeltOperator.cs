@@ -6,7 +6,6 @@ public class NoteBeltOperator : MonoBehaviour
     private NoteOperator[] notes;
 
     private int noteIndex = 0;
-    private float melodyPosition = 0;
 
     [SerializeField]
     private float distance;
@@ -28,7 +27,7 @@ public class NoteBeltOperator : MonoBehaviour
 
     private void Update()
     {
-        MoveCursorPosition(Time.deltaTime);
+        MoveCursorPosition();
         NoteCheck();
         //float delta = Time.deltaTime * distance * BPM;
 
@@ -46,10 +45,16 @@ public class NoteBeltOperator : MonoBehaviour
         //}
     }
 
-    private void MoveCursorPosition(float deltaTime)
+    private void MoveCursorPosition()
     {
-        //melodyPosition += deltaTime * semplesRate;//
-        CoreValuesHUB.MelodyPosition.SetValue(microphonOperator.GetMicrophonePosition());
+        int melodyPositionInSamples = microphonOperator.GetMicrophonePositionInSamples();
+        CoreValuesHUB.MelodyPositionInSamples.SetValue(melodyPositionInSamples);
+
+        float melodyPositionInPercentages = melodyPositionInSamples / CoreValuesHUB.melodyLengthInSamples;
+        CoreValuesHUB.MelodyPositionInRate.SetValue(melodyPositionInPercentages);
+
+        float melodyPositionInSeconds = melodyPositionInPercentages * CoreValuesHUB.melodyLengthInSec;
+        CoreValuesHUB.MelodyPositionInSeconds.SetValue(melodyPositionInSeconds);
     }
 
     private void NoteCheck()
@@ -80,8 +85,10 @@ public class NoteBeltOperator : MonoBehaviour
     public void ResetEvent()
     {
         noteIndex = 0;
-        melodyPosition = 0;
-        CoreValuesHUB.MelodyPosition.SetValue(melodyPosition);
+        int melodyPosition = 0;
+        CoreValuesHUB.MelodyPositionInSamples.SetValue(melodyPosition);
+        CoreValuesHUB.MelodyPositionInSeconds.SetValue(melodyPosition);
+        CoreValuesHUB.MelodyPositionInRate.SetValue(melodyPosition);
         for (int i = 0; i < notes.Length; i++)
         {
             notes[i].ResetNote();

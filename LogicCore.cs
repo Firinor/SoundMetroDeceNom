@@ -87,7 +87,6 @@ public class LogicCore : MonoBehaviour
                 break;
             case CoreValue.Smooth:
                 CoreValuesHUB.Smooth.SetValue(newValue);
-                microphonOperator.SetSmooth(newValue);
                 break;
             case CoreValue.Reaction:
                 CoreValuesHUB.Reaction.SetValue(newValue);
@@ -102,11 +101,10 @@ public class LogicCore : MonoBehaviour
         microphonOperator.StartRecording(microphoneName);
     }
 
-    public int GetSoundLength()
+    public float GetSoundLengthInSeconds()
     {
         float beatsPerSecond = (float)beatsPerMinute / 60f;
         float soundLength = Melody.NOTES_COUNT / beatsPerSecond;
-        int extraSecondOfSafe = 1;
-        return (int)soundLength + extraSecondOfSafe;//length in seconds
+        return soundLength;//length in seconds
     }
 }
