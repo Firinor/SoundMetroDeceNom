@@ -62,7 +62,7 @@ public class NoteOperator : MonoBehaviour
         float reactionInSecondLength = (reaction / 1000f) * (beatsPerMinute / 60f) * DISTANCE_BETWEEN_NOTES;
         
         float noteCheckStartPosition = -reactionInSecondLength / 2;
-        float noteCheckSilensePosition = noteCheckStartPosition - reactionInSecondLength;
+        float noteCheckSilensePosition = noteCheckStartPosition - reactionInSecondLength / 2;
         float noteCheckEndPosition = noteCheckStartPosition + reactionInSecondLength;
 
         MoveCursor(silenseCursor, noteCheckSilensePosition);

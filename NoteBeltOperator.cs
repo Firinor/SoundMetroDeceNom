@@ -62,7 +62,7 @@ public class NoteBeltOperator : MonoBehaviour
         if (noteIndex >= notes.Length)
             return;
 
-        NoteCheckResult result = noteManager.MelodySuccessNoteCheck();
+        NoteCheckResult result = noteManager.MelodySuccessNoteCheck(noteIndex);
 
         switch (result)
         {

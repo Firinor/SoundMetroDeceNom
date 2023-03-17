@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class DiagramOperator : MonoBehaviour
@@ -23,7 +24,7 @@ public class DiagramOperator : MonoBehaviour
 
     private float decibelGate => CoreValuesHUB.DecibelGate.GetValue();
     private float melodyPosition => CoreValuesHUB.MelodyPositionInSamples.GetValue();
-    private int smooth => CoreValuesHUB.Smooth.GetValue();
+    //private int smooth => CoreValuesHUB.Smooth.GetValue();
     private float oldMelodyPosition = 0;
 
     private MicrophonOperator microphonOperator => (MicrophonOperator)CoreHUB.MicrophonOperator.GetValue();
@@ -42,28 +43,51 @@ public class DiagramOperator : MonoBehaviour
     }
     private void Update()
     {
+        if (oldMelodyPosition >= melodyPosition)
+            return;
+
         MoveCursor();
         DrawVolumeLine();
     }
 
     private void DrawVolumeLine()
     {
-        if (oldMelodyPosition >= melodyPosition)
-            return;
+        float floatStep = CoreValuesHUB.melodyLengthInSamples / 300f;//%
 
-        int positionStep = CoreValuesHUB.melodyLengthInSamples / 100;//%
+        int positionStep = (int)floatStep;
 
         if (positionStep <= 0)
             return;
 
+        Debug.Log($"3oldMelodyPosition {oldMelodyPosition}");
+        Debug.Log($"3melodyPosition {melodyPosition}");
+        Debug.Log($"3positionStep {positionStep}");
+
         while (oldMelodyPosition < melodyPosition)
         {
-            oldMelodyPosition += positionStep;
-
             float xPosition = GetXPosition(oldMelodyPosition);
-            float soundValue = microphonOperator.GetLoudness((int)oldMelodyPosition, smooth);
-            DrawVolumePoint(soundValue, xPosition);
+            //if (noteManager.KeyPosition(oldMelodyPosition))
+            //{
+            //    DrawZeroPoint(xPosition);
+            //}
+            //else
+            //{
+                Debug.Log($"3xPosition {xPosition}");
+                float soundValue = microphonOperator.GetLoudness((int)oldMelodyPosition, positionStep);
+                Debug.Log($"3soundValue {soundValue}");
+                DrawVolumePoint(soundValue, xPosition);
+            //}
+
+            oldMelodyPosition += positionStep;
         }
+    }
+
+    private void DrawZeroPoint(float xPosition)
+    {
+        lineRenderer.positionCount++;
+        Vector3 nextPosition = new Vector3(xPosition, -390f, 0f);
+
+        lineRenderer.SetPosition(lineRenderer.positionCount - 1, nextPosition);
     }
 
     private float GetXPosition(float positionInSamples)
@@ -83,16 +107,12 @@ public class DiagramOperator : MonoBehaviour
         soundValue = Mathf.Lerp(minValue, maxValue, soundValue);
         lineRenderer.positionCount++;
         Vector3 nextPosition = new Vector3(xPosition, soundValue, 0f);
+
         lineRenderer.SetPosition(lineRenderer.positionCount - 1, nextPosition);
     }
 
     private void MoveCursor()
     {
-        int melodyPosition = microphonOperator.GetMicrophonePositionInSamples();
-
-        //if (oldMelodyPosition == melodyPosition)
-        //    return;
-
         float delta = (float)melodyPosition / (float)CoreValuesHUB.melodyLengthInSamples;
 
         if (delta >= 1)

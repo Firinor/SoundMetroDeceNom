@@ -21,6 +21,10 @@ public class LogicCore : MonoBehaviour
     {
         CoreHUB.LogicCore.SetValue(this);
     }
+    private void Start()
+    {
+        ResetEvent();
+    }
 
     public void OnResetButton()
     {
@@ -78,7 +82,7 @@ public class LogicCore : MonoBehaviour
         {
             case CoreValue.BeatsPerMinute:
                 CoreValuesHUB.BeatsPerMinute.SetValue(newValue);
-                noteManager.SetNewBeatsPerMinuteInMelody(newValue);
+                noteManager.SetNewBeatsPerMinuteInMelody();
                 DisabledBeltOperator();
                 break;
             case CoreValue.DecibelGate:
@@ -91,6 +95,7 @@ public class LogicCore : MonoBehaviour
             case CoreValue.Reaction:
                 CoreValuesHUB.Reaction.SetValue(newValue);
                 noteBeltOperator.ReflectEvent();
+                noteManager.GenerateNotesCheckPositions();
                 break;
         }
     }
@@ -99,6 +104,14 @@ public class LogicCore : MonoBehaviour
     {
         string microphoneName = Microphone.devices[0];
         microphonOperator.StartRecording(microphoneName);
+    }
+    public void ResetEvent()
+    {
+        noteManager.SetNewBeatsPerMinuteInMelody();
+        DisabledBeltOperator();
+        diagramOperator.SetDecibelGate();
+        noteBeltOperator.ReflectEvent();
+        noteManager.GenerateNotesCheckPositions();
     }
 
     public float GetSoundLengthInSeconds()

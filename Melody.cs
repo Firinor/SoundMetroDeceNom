@@ -40,7 +40,7 @@ public class Melody
                 position = positionShift + melodyCursorSamplePosition * i,
                 noteTipe = NoteTipe.Note
             };
-            //Debug.Log($"note {i} position {melody[i].position}");
+            Debug.Log($"note {i} position {melody[i].position}");
         }
     }
 
@@ -55,6 +55,11 @@ public class Melody
         return false;
     }
 
+    public int GetNote()
+    {
+        return noteIndex;
+    }
+
     public void NextNote()
     {
         noteIndex++;
@@ -66,6 +71,11 @@ public class Melody
     }
 
     internal int GetCurrentNotePosition()
+    {
+        return GetNotePosition(noteIndex);
+    }
+
+    internal int GetNotePosition(int noteIndex)
     {
         return melody[noteIndex].position;
     }

@@ -1,13 +1,14 @@
+using System;
 using UnityEngine;
 
 public class NoteManager : MonoBehaviour
 {
     private bool isFirstNote = true;
     private Melody melody;
+    private int oldPosition = 0;
 
-    private bool isNoteReadyToCheck = false;
-    private int noteCheckStartPosition = 0;
-    private int noteCheckEndPosition = 0;
+    private int[] noteCheckStartPosition;
+    private int[] noteCheckEndPosition;
     private int reactionInSamples = 0;
 
     [SerializeField]
@@ -18,24 +19,21 @@ public class NoteManager : MonoBehaviour
 
     private float decibelGate => CoreValuesHUB.DecibelGate.GetValue();
 
-    private int reaction => CoreValuesHUB.Reaction.GetValue();
-    private int sampleRate => CoreValuesHUB.SampleRate.GetValue();
-
     private void Awake()
     {
         CoreHUB.NoteManager.SetValue(this);
-        melody = new Melody(CoreValuesHUB.BeatsPerMinute.GetValue());
+        melody = new Melody(CoreValuesHUB.beatsPerMinute);
     }
 
-    public void SetNewBeatsPerMinuteInMelody(int beatsPerMinute)
+    public void SetNewBeatsPerMinuteInMelody()
     {
-        melody.SetNewBeatsPerMinute(beatsPerMinute);
+        melody.SetNewBeatsPerMinute(CoreValuesHUB.beatsPerMinute);
     }
 
 
     private void Update()
     {
-        MelodySoundByPositionCheck(CoreValuesHUB.MelodyPositionInSamples.GetValue());
+        MelodySoundByPositionCheck(CoreValuesHUB.melodyPositionInSamples);
     }
 
     private void MelodySoundByPositionCheck(float cursorPosition)
@@ -55,32 +53,49 @@ public class NoteManager : MonoBehaviour
 
             audioSource.clip = clip;
             audioSource.Play();
-            isNoteReadyToCheck = true;
-            //reaction in milliseconds. It should be divided by 1000 to convert in seconds
-            reactionInSamples = (int)(reaction / 1000f * sampleRate); 
-            noteCheckStartPosition = melody.GetCurrentNotePosition() - reactionInSamples / 2;
-            noteCheckEndPosition = noteCheckStartPosition + reactionInSamples;
+
             melody.NextNote();
         }
     }
 
-    public NoteCheckResult MelodySuccessNoteCheck()
+    public void GenerateNotesCheckPositions()
     {
-        if(!isNoteReadyToCheck)
+        noteCheckStartPosition = new int[Melody.NOTES_COUNT];
+        noteCheckEndPosition = new int[Melody.NOTES_COUNT];
+
+        //reaction in milliseconds. It should be divided by 1000 to convert in seconds
+        reactionInSamples = (int)(CoreValuesHUB.reaction / 1000f * CoreValuesHUB.sampleRate);
+        Debug.Log($"1reactionInSamples {reactionInSamples}");
+
+        for(int i = 0; i < noteCheckStartPosition.Length; i++)
+        {
+            noteCheckStartPosition[i] = melody.GetNotePosition(i) - reactionInSamples / 2;
+            noteCheckEndPosition[i] = noteCheckStartPosition[i] + reactionInSamples;
+        }
+        
+    }
+
+    public NoteCheckResult MelodySuccessNoteCheck(int noteIndex)
+    {
+        if (noteCheckEndPosition[noteIndex] > microphonOperator.GetMicrophonePositionInSamples())
             return NoteCheckResult.None;
         
-        if (noteCheckEndPosition > microphonOperator.GetMicrophonePositionInSamples())
-            return NoteCheckResult.None;
+        Debug.Log($"2noteIndex {noteIndex}");
+        Debug.Log($"2noteCheckEndPosition {noteCheckEndPosition[noteIndex]}");
+        Debug.Log($"2microphonePositionInSamples {microphonOperator.GetMicrophonePositionInSamples()}");
 
-        isNoteReadyToCheck = false;
+        float soundOnStartValue = microphonOperator.GetLoudness(noteCheckStartPosition[noteIndex], reactionInSamples / 2);
+        float soundOnEndValue = microphonOperator.GetLoudness(noteCheckEndPosition[noteIndex], reactionInSamples);
 
-        float soundOnStartValue = microphonOperator.GetLoudness(noteCheckStartPosition, reactionInSamples);
+        Debug.Log($"2soundOnStartValue {soundOnStartValue}");
+        Debug.Log($"2soundOnEndValue {soundOnEndValue}");
+        Debug.Log($"2melody {melody.GetNote()}");
         bool volumeOnStart = soundOnStartValue >= decibelGate;
         
         if (volumeOnStart)
             return NoteCheckResult.Fast;
 
-        float soundOnEndValue = microphonOperator.GetLoudness(noteCheckEndPosition, reactionInSamples);
+        
         bool volumeOnEnd = soundOnEndValue >= decibelGate;
         
         if (!volumeOnEnd)
@@ -96,5 +111,19 @@ public class NoteManager : MonoBehaviour
         noteBeltOperator.ResetEvent();
         microphonOperator.StartRecording(Microphone.devices[0]);
         isFirstNote = true;
+    }
+
+    internal bool KeyPosition(float samplePosition)
+    {
+        for (int i = 0; i < Microphone.devices.Length;)
+        {
+            //    if()
+            //        return true;
+            //    if ()
+            //        return true;
+        }
+        //oldPosition;
+
+        return false;
     }
 }
