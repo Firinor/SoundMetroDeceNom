@@ -7,7 +7,7 @@ public class MicrophonOperator : MonoBehaviour
     [SerializeField]
     private Image image;
 
-    private LogicCore logicCore => (LogicCore)CoreHUB.LogicCore.GetValue();
+    private LogicCore logicCore => (LogicCore)CoreHUB.logicCore;
 
     private void Awake()
     {
@@ -45,7 +45,10 @@ public class MicrophonOperator : MonoBehaviour
 
         float[] data = new float[sampleWindow];
         microphoneClip.GetData(data, startPosition);
-
+        for(int i = 0; i < data.Length; i++)
+        {
+            data[i] = Mathf.Abs(data[i]);
+        }
         return Mathf.Max(data);
     }
 }

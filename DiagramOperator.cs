@@ -11,6 +11,8 @@ public class DiagramOperator : MonoBehaviour
     private LineRenderer lineRenderer;
     [SerializeField]
     private float lineWidth;
+    [SerializeField]
+    private float stepsCount = 500;
 
     [SerializeField]
     private float startPosition;
@@ -22,14 +24,11 @@ public class DiagramOperator : MonoBehaviour
     [SerializeField]
     private float maxValue;
 
-    private float decibelGate => CoreValuesHUB.DecibelGate.GetValue();
-    private float melodyPosition => CoreValuesHUB.MelodyPositionInSamples.GetValue();
-    //private int smooth => CoreValuesHUB.Smooth.GetValue();
-    private float oldMelodyPosition = 0;
+    private float oldSamplePosition = 0;
+    private float oldRatePosition = 0;
 
-    private MicrophonOperator microphonOperator => (MicrophonOperator)CoreHUB.MicrophonOperator.GetValue();
-    private NoteManager noteManager => (NoteManager)CoreHUB.NoteManager.GetValue();
-    //private NoteBeltOperator noteBeltOperator => (NoteBeltOperator)CoreHUB.NoteBeltOperator.GetValue();
+    private MicrophonOperator microphonOperator => (MicrophonOperator)CoreHUB.microphonOperator;
+    //private PlayModeOperator playModeOperator => (PlayModeOperator)CoreHUB.playModeOperator;
 
     private void Awake()
     {
@@ -43,7 +42,7 @@ public class DiagramOperator : MonoBehaviour
     }
     private void Update()
     {
-        if (oldMelodyPosition >= melodyPosition)
+        if (oldSamplePosition >= microphonOperator.GetMicrophonePositionInSamples())
             return;
 
         MoveCursor();
@@ -52,56 +51,39 @@ public class DiagramOperator : MonoBehaviour
 
     private void DrawVolumeLine()
     {
-        float floatStep = CoreValuesHUB.melodyLengthInSamples / 300f;//%
+        float newRatePosition = CoreValuesHUB.melodyPositionInRate;
+        float deltaRate = newRatePosition - oldRatePosition;
 
-        int positionStep = (int)floatStep;
-
-        if (positionStep <= 0)
+        if (deltaRate <= 0)
             return;
 
-        Debug.Log($"3oldMelodyPosition {oldMelodyPosition}");
-        Debug.Log($"3melodyPosition {melodyPosition}");
-        Debug.Log($"3positionStep {positionStep}");
+        int positionInSamples = microphonOperator.GetMicrophonePositionInSamples();
+        float deltaSample = positionInSamples - oldSamplePosition;
 
-        while (oldMelodyPosition < melodyPosition)
+        float deltaStepsCount = deltaRate * stepsCount;
+        float sampleStep = deltaSample / deltaStepsCount;
+        float rateStep = deltaRate / deltaStepsCount;
+
+        while (oldRatePosition < newRatePosition)
         {
-            float xPosition = GetXPosition(oldMelodyPosition);
-            //if (noteManager.KeyPosition(oldMelodyPosition))
-            //{
-            //    DrawZeroPoint(xPosition);
-            //}
-            //else
-            //{
-                Debug.Log($"3xPosition {xPosition}");
-                float soundValue = microphonOperator.GetLoudness((int)oldMelodyPosition, positionStep);
-                Debug.Log($"3soundValue {soundValue}");
-                DrawVolumePoint(soundValue, xPosition);
-            //}
+            float xPosition = GetXPosition(oldRatePosition);
 
-            oldMelodyPosition += positionStep;
+            float soundValue = microphonOperator.GetLoudness((int)oldSamplePosition, (int)sampleStep + 1);
+            DrawVolumePoint(soundValue, xPosition);
+
+            oldSamplePosition += sampleStep;
+            oldRatePosition += rateStep;
         }
     }
 
-    private void DrawZeroPoint(float xPosition)
+    private float GetXPosition(float positionInRate)
     {
-        lineRenderer.positionCount++;
-        Vector3 nextPosition = new Vector3(xPosition, -390f, 0f);
-
-        lineRenderer.SetPosition(lineRenderer.positionCount - 1, nextPosition);
-    }
-
-    private float GetXPosition(float positionInSamples)
-    {
-        float result = positionInSamples / CoreValuesHUB.melodyLengthInSamples;
-
-        result = Mathf.Lerp(startPosition, endPosition, result);
-
-        return result;
+        return Mathf.Lerp(startPosition, endPosition, positionInRate);
     }
 
     private void DrawVolumePoint(float soundValue, float xPosition)
     {
-        if (soundValue < decibelGate)
+        if (soundValue < CoreValuesHUB.decibelGate)
             soundValue = 0;
 
         soundValue = Mathf.Lerp(minValue, maxValue, soundValue);
@@ -113,15 +95,12 @@ public class DiagramOperator : MonoBehaviour
 
     private void MoveCursor()
     {
-        float delta = (float)melodyPosition / (float)CoreValuesHUB.melodyLengthInSamples;
-
-        if (delta >= 1)
+        if (CoreValuesHUB.melodyPositionInRate >= 1)
         {
-            delta = 0;
             ResetEvent();
         }
 
-        float xPosition = Mathf.Lerp(startPosition, endPosition, delta);
+        float xPosition = Mathf.Lerp(startPosition, endPosition, CoreValuesHUB.melodyPositionInRate);
 
         timeCursor.anchoredPosition = new Vector3(xPosition, 0f, 0f);
     }
@@ -130,13 +109,18 @@ public class DiagramOperator : MonoBehaviour
     {
         timeCursor.anchoredPosition = new Vector3(startPosition, 0f, 0f);
         lineRenderer.positionCount = 0;
-        oldMelodyPosition = 0;
-        noteManager.NewTact();
+        oldSamplePosition = 0;
+        oldRatePosition = 0;
     }
 
     public void SetDecibelGate()
     {
-        float decibelValue = Mathf.Lerp(minValue, maxValue, decibelGate);
+        float decibelValue = Mathf.Lerp(minValue, maxValue, CoreValuesHUB.decibelGate);
         decibelCursor.anchoredPosition = new Vector3(0f, decibelValue, 0f);
+    }
+
+    public NoteCheckResult MelodySuccessNoteCheck(int i)
+    {
+        return NoteCheckResult.None;
     }
 }

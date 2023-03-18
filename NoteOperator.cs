@@ -3,8 +3,6 @@ using UnityEngine.UI;
 
 public class NoteOperator : MonoBehaviour
 {
-    private const float  DISTANCE_BETWEEN_NOTES = 70.5f;
-
     [SerializeField]
     private Image noteImage;
     [SerializeField]
@@ -24,9 +22,6 @@ public class NoteOperator : MonoBehaviour
     private Image startCursorImage;
     [SerializeField]
     private Image endCursorImage;
-
-    private int beatsPerMinute => CoreValuesHUB.BeatsPerMinute.GetValue();
-    private int reaction => CoreValuesHUB.Reaction.GetValue();
 
     public void ResetNote()
     {
@@ -59,11 +54,14 @@ public class NoteOperator : MonoBehaviour
 
     public void SetReflectPosition()
     {
-        float reactionInSecondLength = (reaction / 1000f) * (beatsPerMinute / 60f) * DISTANCE_BETWEEN_NOTES;
+        float melodyLenghtInUnit = CoreValuesHUB.melodyEndPosition - CoreValuesHUB.melodyStartPosition;
+        float melodyUnitsInSecond = melodyLenghtInUnit / CoreValuesHUB.melodyLengthInSeconds;
+        //reaction in milliseconds. It should be divided by 1000 to convert in seconds
+        float reactionInUnit = melodyUnitsInSecond * (CoreValuesHUB.reaction / 1000f) ;
         
-        float noteCheckStartPosition = -reactionInSecondLength / 2;
-        float noteCheckSilensePosition = noteCheckStartPosition - reactionInSecondLength / 2;
-        float noteCheckEndPosition = noteCheckStartPosition + reactionInSecondLength;
+        float noteCheckStartPosition = -reactionInUnit / 2;
+        float noteCheckSilensePosition = noteCheckStartPosition - reactionInUnit / 2;
+        float noteCheckEndPosition = noteCheckStartPosition + reactionInUnit;
 
         MoveCursor(silenseCursor, noteCheckSilensePosition);
         MoveCursor(startCursor, noteCheckStartPosition);

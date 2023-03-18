@@ -6,7 +6,6 @@ public class CoreValuesHUBInformator : MonoBehaviour
     public Difficulty Difficulty;
     public int BeatsPerMinute;
     public int DecibelGate;
-    public int Smooth;
     public int Reaction;
 
     private void Awake()
@@ -15,7 +14,6 @@ public class CoreValuesHUBInformator : MonoBehaviour
         CoreValuesHUB.Difficulty.SetValue(Difficulty);
         CoreValuesHUB.BeatsPerMinute.SetValue(BeatsPerMinute);
         CoreValuesHUB.DecibelGate.SetValue(DecibelGate/100f);//%
-        CoreValuesHUB.Smooth.SetValue(Smooth);
         CoreValuesHUB.Reaction.SetValue(Reaction);
 
         Destroy(this);

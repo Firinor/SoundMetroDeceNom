@@ -1,90 +1,82 @@
-using System;
 using UnityEngine;
 
 public class Melody
 {
     public const int NOTES_COUNT = 8;
+    public const int NOTES_PER_TACT = 4;
 
-    public NotePosition[] melody;
+    public Note[] melody;
+    public AudioSource AudioSource;
 
-    private float cursorPosition;
+    //private int notesPerTact = 4;
 
-    private int noteIndex;
-    private int notesPerTact = 4;
-
-    public Melody(int beatsPerMinute)
+    public Melody(float length)
     {
-        SetNewBeatsPerMinute(beatsPerMinute);
+        SetNewDefaultMelody();
     }
 
-    public void SetNewBeatsPerMinute(int beatsPerMinute)
+    public void SetNewDefaultMelody()
     {
-        melody = new NotePosition[8];
+        melody = new Note[NOTES_COUNT];
 
-        float beatsPerSecond = beatsPerMinute / 60f;
-        float tactLength = notesPerTact / beatsPerSecond;
-
-        int melodyLength = (int)(AudioSettings.outputSampleRate * tactLength);
-
-        CoreValuesHUB.MelodyLengthInSamples.SetValue(melodyLength);
-        CoreValuesHUB.MelodyLengthInSec.SetValue(tactLength);
-
-        int melodyCursorSamplePosition = (int)(melodyLength / (float)Duration.EIGHTH);
-        int positionShift = melodyCursorSamplePosition / 3;
+        float eighthShare = (int)(1 / (float)Duration.EIGHTH);
+        float positionShift = eighthShare / 2;//half
 
         for (int i = 0; i < melody.Length; i++)
         {
-            melody[i] = new NotePosition
+            AudioClip clip;
+            if (i == 0)
+                clip = Informator.StartOfTactNote;
+            else
+                clip = Informator.DefaultNote;
+
+            melody[i] = new Note
             {
                 duration = Duration.EIGHTH,
-                position = positionShift + melodyCursorSamplePosition * i,
-                noteTipe = NoteTipe.Note
+                position = positionShift + eighthShare * i,
+                noteTipe = NoteTipe.Note,
+                clip = clip
             };
-            Debug.Log($"note {i} position {melody[i].position}");
         }
     }
 
-    internal bool isOnNote(float cursorPosition)
+    internal AudioClip CheckNotes(float cursorPosition, float deltaRate)
     {
-        if(noteIndex < melody.Length && cursorPosition >= melody[noteIndex].position)
+        float start = cursorPosition - deltaRate;
+        float end = cursorPosition;
+
+        for(int i = 0; i < melody.Length; i++)
         {
-            //Debug.Log(notePosition);
-            return true;
+            if(melody[i].position > start && melody[i].position < end)
+            {
+                return melody[i].clip;
+            }
         }
-        
-        return false;
+
+        return null;
     }
 
-    public int GetNote()
+    public Note GetNote(int noteIndex)
     {
-        return noteIndex;
+        return melody[noteIndex];
     }
 
-    public void NextNote()
-    {
-        noteIndex++;
-    }
-
-    public void ResetNotePosition()
-    {
-        noteIndex = 0;
-    }
-
-    internal int GetCurrentNotePosition()
+    internal float GetCurrentNotePosition(int noteIndex)
     {
         return GetNotePosition(noteIndex);
     }
 
-    internal int GetNotePosition(int noteIndex)
+    internal float GetNotePosition(int noteIndex)
     {
         return melody[noteIndex].position;
     }
 
-    public class NotePosition
+    public class Note
     {
         public int tact;
-        public int position;
+        public float position;
         public NoteTipe noteTipe;
         public Duration duration;
+        public AudioClip clip;
     }
 }

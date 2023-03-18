@@ -20,7 +20,7 @@ public class LerpValueOperator : MonoBehaviour
     [SerializeField]
     private string conditionalLetterDesignation;
 
-    private LogicCore logicCore => (LogicCore)CoreHUB.LogicCore.GetValue();
+    private LogicCore logicCore => (LogicCore)CoreHUB.logicCore;
 
     private void Awake()
     {

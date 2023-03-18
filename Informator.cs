@@ -37,7 +37,7 @@ public class Informator : MonoBehaviour
     public static AudioClip StartOfTactNote => instance.startOfTactNote;
     [SerializeField]
     private AudioClip defaulteNote;
-    public static AudioClip DefaulteNote => instance.defaulteNote;
+    public static AudioClip DefaultNote => instance.defaulteNote;
 
     public void Awake()
     {

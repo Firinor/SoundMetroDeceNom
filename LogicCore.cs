@@ -8,14 +8,11 @@ public class LogicCore : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI startText;
 
-    private ResultOperator resultOperator => (ResultOperator)CoreHUB.ResultOperator.GetValue();
-    private NoteBeltOperator noteBeltOperator => (NoteBeltOperator)CoreHUB.NoteBeltOperator.GetValue();
-    private DiagramOperator diagramOperator => (DiagramOperator)CoreHUB.DiagramOperator.GetValue();
-    private MicrophonOperator microphonOperator => (MicrophonOperator)CoreHUB.MicrophonOperator.GetValue();
-    private NoteManager noteManager => (NoteManager)CoreHUB.NoteManager.GetValue();
-
-    private Difficulty difficulty => CoreValuesHUB.Difficulty.GetValue();
-    private int beatsPerMinute => CoreValuesHUB.BeatsPerMinute.GetValue();
+    private ResultOperator resultOperator => (ResultOperator)CoreHUB.resultOperator;
+    private NoteBeltOperator noteBeltOperator => (NoteBeltOperator)CoreHUB.noteBeltOperator;
+    private DiagramOperator diagramOperator => (DiagramOperator)CoreHUB.diagramOperator;
+    private MicrophonOperator microphonOperator => (MicrophonOperator)CoreHUB.microphonOperator;
+    private PlayModeOperator playModeOperator => (PlayModeOperator)CoreHUB.playModeOperator;
 
     private void Awake()
     {
@@ -23,6 +20,8 @@ public class LogicCore : MonoBehaviour
     }
     private void Start()
     {
+
+        playModeOperator.melodies = new Melody[1] { new Melody(GetSoundLengthInSeconds()) };
         ResetEvent();
     }
 
@@ -39,12 +38,12 @@ public class LogicCore : MonoBehaviour
         CoreValuesHUB.PlayMode.SetValue(PlayMode.Stop);
         noteBeltOperator.enabled = false;
         diagramOperator.enabled = false;
-        startText.text = PlayMode.Start.ToString();
+        startText.text = PlayMode.Play.ToString();
     }
 
     private void EnabledBeltOperator()
     {
-        CoreValuesHUB.PlayMode.SetValue(PlayMode.Start);
+        CoreValuesHUB.PlayMode.SetValue(PlayMode.Play);
         //resultOperator.ResetEvent();
         diagramOperator.ResetEvent();
         noteBeltOperator.enabled = true;
@@ -54,7 +53,7 @@ public class LogicCore : MonoBehaviour
 
     public void OnDifficultyButton()
     {
-        Difficulty difficulty = this.difficulty;
+        Difficulty difficulty = CoreValuesHUB.difficulty;
         switch (difficulty)
         {
             case Difficulty.Easy:
@@ -73,7 +72,7 @@ public class LogicCore : MonoBehaviour
 
     private void RefreshDifficultyText()
     {
-        difficultyText.text = difficulty.ToString();
+        difficultyText.text = CoreValuesHUB.difficulty.ToString();
     }
 
     public void SetCoreValue(CoreValue coreValue, int newValue)
@@ -82,20 +81,15 @@ public class LogicCore : MonoBehaviour
         {
             case CoreValue.BeatsPerMinute:
                 CoreValuesHUB.BeatsPerMinute.SetValue(newValue);
-                noteManager.SetNewBeatsPerMinuteInMelody();
                 DisabledBeltOperator();
                 break;
             case CoreValue.DecibelGate:
                 CoreValuesHUB.DecibelGate.SetValue(newValue / 100f);//%
                 diagramOperator.SetDecibelGate();
                 break;
-            case CoreValue.Smooth:
-                CoreValuesHUB.Smooth.SetValue(newValue);
-                break;
             case CoreValue.Reaction:
                 CoreValuesHUB.Reaction.SetValue(newValue);
                 noteBeltOperator.ReflectEvent();
-                noteManager.GenerateNotesCheckPositions();
                 break;
         }
     }
@@ -107,17 +101,18 @@ public class LogicCore : MonoBehaviour
     }
     public void ResetEvent()
     {
-        noteManager.SetNewBeatsPerMinuteInMelody();
         DisabledBeltOperator();
+        playModeOperator.ResetEvent();
         diagramOperator.SetDecibelGate();
         noteBeltOperator.ReflectEvent();
-        noteManager.GenerateNotesCheckPositions();
     }
 
     public float GetSoundLengthInSeconds()
     {
-        float beatsPerSecond = (float)beatsPerMinute / 60f;
-        float soundLength = Melody.NOTES_COUNT / beatsPerSecond;
-        return soundLength;//length in seconds
+        float soundLength = Melody.NOTES_COUNT / CoreValuesHUB.beatsPerSecond;
+
+        CoreValuesHUB.MelodyLengthInSeconds.SetValue(soundLength);
+
+        return soundLength;
     }
 }
