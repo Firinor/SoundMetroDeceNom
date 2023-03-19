@@ -8,12 +8,9 @@ public static class CoreValuesHUB
     public static int sampleRate => SampleRate.GetValue();
 
     public static float melodyPositionInRate => MelodyPositionInRate.GetValue();
-    public static float melodyPositionInSeconds => MelodyPositionInSeconds.GetValue();
 
-    public static float melodyLengthInSeconds => MelodyLengthInSeconds.GetValue();
-
-    public static float melodyStartPosition => MelodyStartPosition.GetValue();
-    public static float melodyEndPosition => MelodyEndPosition.GetValue();
+    public static float melodyLengthInSeconds => beatsPerSecond * 4;//4 notes per tact
+    public static float melodyLengthInUnits => MelodyLengthInUnits.GetValue();
 
     public static int beatsPerMinute => BeatsPerMinute.GetValue();
     public static float beatsPerSecond => beatsPerMinute / 60f;
@@ -26,13 +23,8 @@ public static class CoreValuesHUB
     public static InstanceCell<int> SampleRate = new InstanceCell<int>();
 
     public static InstanceCell<float> MelodyPositionInRate = new InstanceCell<float>();
-    public static InstanceCell<float> MelodyPositionInSeconds = new InstanceCell<float>();
-    public static InstanceCell<int> MelodyPositionInSamples = new InstanceCell<int>();
 
-    public static InstanceCell<float> MelodyLengthInSeconds = new InstanceCell<float>();
-
-    public static InstanceCell<float> MelodyStartPosition = new InstanceCell<float>();
-    public static InstanceCell<float> MelodyEndPosition = new InstanceCell<float>();
+    public static InstanceCell<float> MelodyLengthInUnits = new InstanceCell<float>();
 
     public static InstanceCell<int> BeatsPerMinute = new InstanceCell<int>();
     public static InstanceCell<float> DecibelGate = new InstanceCell<float>();

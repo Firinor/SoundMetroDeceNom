@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Melody
@@ -10,7 +11,7 @@ public class Melody
 
     //private int notesPerTact = 4;
 
-    public Melody(float length)
+    public Melody()
     {
         SetNewDefaultMelody();
     }
@@ -19,7 +20,7 @@ public class Melody
     {
         melody = new Note[NOTES_COUNT];
 
-        float eighthShare = (int)(1 / (float)Duration.EIGHTH);
+        float eighthShare = 1 / (float)Duration.EIGHTH;
         float positionShift = eighthShare / 2;//half
 
         for (int i = 0; i < melody.Length; i++)
@@ -32,6 +33,7 @@ public class Melody
 
             melody[i] = new Note
             {
+                isPlayed = false,
                 duration = Duration.EIGHTH,
                 position = positionShift + eighthShare * i,
                 noteTipe = NoteTipe.Note,
@@ -47,8 +49,9 @@ public class Melody
 
         for(int i = 0; i < melody.Length; i++)
         {
-            if(melody[i].position > start && melody[i].position < end)
+            if(!melody[i].isPlayed && melody[i].position > start && melody[i].position < end)
             {
+                melody[i].isPlayed = true;
                 return melody[i].clip;
             }
         }
@@ -71,8 +74,17 @@ public class Melody
         return melody[noteIndex].position;
     }
 
+    internal void ResetEvent()
+    {
+        for (int i = 0; i < melody.Length; i++)
+        {
+            melody[i].isPlayed = false;
+        }
+    }
+
     public class Note
     {
+        public bool isPlayed;
         public int tact;
         public float position;
         public NoteTipe noteTipe;

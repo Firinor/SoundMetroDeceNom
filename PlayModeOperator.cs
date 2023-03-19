@@ -1,16 +1,23 @@
+using System;
 using UnityEngine;
 
 public class PlayModeOperator : MonoBehaviour
 {
     private float playRate = 0;
+    private float deltaPlayRate = 0;
     public Melody[] melodies;
 
     [SerializeField]
     private AudioSource audioSource;
 
+    public Action ResetAction;
+
+    private LogicCore logicCore => (LogicCore)CoreHUB.logicCore;
+
     private void Awake()
     {
         CoreHUB.PlayModeOperator.SetValue(this);
+        ResetAction += ResetEvent;
     }
 
     void Update()
@@ -19,11 +26,12 @@ public class PlayModeOperator : MonoBehaviour
             return;
 
         float deltaTime = Time.deltaTime * CoreValuesHUB.beatsPerSecond;
-        playRate += deltaTime / Melody.NOTES_PER_TACT;
+        deltaPlayRate = deltaTime / Melody.NOTES_PER_TACT;
+        playRate += deltaPlayRate;
 
         if (playRate >= 1)
         {
-            ResetEvent();
+            ResetAction?.Invoke();
             return;
         }
 
@@ -36,7 +44,7 @@ public class PlayModeOperator : MonoBehaviour
     {
         foreach (var melody in melodies)
         {
-            AudioClip clip = melody.CheckNotes(playRate, Time.deltaTime);
+            AudioClip clip = melody.CheckNotes(playRate, deltaPlayRate);
             if(clip != null)
             {
                 audioSource.clip = clip;
@@ -49,5 +57,12 @@ public class PlayModeOperator : MonoBehaviour
     {
         playRate = 0;
         CoreValuesHUB.MelodyPositionInRate.SetValue(playRate);
+
+        foreach (var melody in melodies)
+        {
+            melody.ResetEvent();
+        }
+
+        logicCore.ResetMicrophone();
     }
 }

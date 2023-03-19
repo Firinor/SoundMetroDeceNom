@@ -23,6 +23,10 @@ public class NoteOperator : MonoBehaviour
     [SerializeField]
     private Image endCursorImage;
 
+    private float reactionInRate;
+    private float startPosition;
+    private float endPosition;
+
     public void ResetNote()
     {
         resultImage.enabled= false;
@@ -54,11 +58,11 @@ public class NoteOperator : MonoBehaviour
 
     public void SetReflectPosition()
     {
-        float melodyLenghtInUnit = CoreValuesHUB.melodyEndPosition - CoreValuesHUB.melodyStartPosition;
-        float melodyUnitsInSecond = melodyLenghtInUnit / CoreValuesHUB.melodyLengthInSeconds;
+        float melodyUnitsInSecond =  CoreValuesHUB.melodyLengthInUnits / CoreValuesHUB.melodyLengthInSeconds;
         //reaction in milliseconds. It should be divided by 1000 to convert in seconds
         float reactionInUnit = melodyUnitsInSecond * (CoreValuesHUB.reaction / 1000f) ;
-        
+        reactionInRate = (CoreValuesHUB.reaction / 1000f) / CoreValuesHUB.melodyLengthInSeconds;
+
         float noteCheckStartPosition = -reactionInUnit / 2;
         float noteCheckSilensePosition = noteCheckStartPosition - reactionInUnit / 2;
         float noteCheckEndPosition = noteCheckStartPosition + reactionInUnit;
@@ -66,6 +70,9 @@ public class NoteOperator : MonoBehaviour
         MoveCursor(silenseCursor, noteCheckSilensePosition);
         MoveCursor(startCursor, noteCheckStartPosition);
         MoveCursor(endCursor, noteCheckEndPosition);
+
+        startPosition = -reactionInRate / 2;
+        endPosition = startPosition + reactionInRate;
     }
 
     private void MoveCursor(RectTransform cursor, float value)

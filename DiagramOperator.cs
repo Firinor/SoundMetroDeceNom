@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class DiagramOperator : MonoBehaviour
@@ -28,7 +27,7 @@ public class DiagramOperator : MonoBehaviour
     private float oldRatePosition = 0;
 
     private MicrophonOperator microphonOperator => (MicrophonOperator)CoreHUB.microphonOperator;
-    //private PlayModeOperator playModeOperator => (PlayModeOperator)CoreHUB.playModeOperator;
+    private PlayModeOperator playModeOperator => (PlayModeOperator)CoreHUB.playModeOperator;
 
     private void Awake()
     {
@@ -37,8 +36,9 @@ public class DiagramOperator : MonoBehaviour
         lineRenderer.startWidth = lineWidth;
         lineRenderer.endWidth = lineWidth;
 
-        CoreValuesHUB.MelodyStartPosition.SetValue(startPosition);
-        CoreValuesHUB.MelodyEndPosition.SetValue(endPosition);
+        CoreValuesHUB.MelodyLengthInUnits.SetValue(endPosition - startPosition);
+
+        playModeOperator.ResetAction += ResetEvent;
     }
     private void Update()
     {
@@ -59,17 +59,27 @@ public class DiagramOperator : MonoBehaviour
 
         int positionInSamples = microphonOperator.GetMicrophonePositionInSamples();
         float deltaSample = positionInSamples - oldSamplePosition;
+        if (deltaSample <= 0)
+            return;
 
         float deltaStepsCount = deltaRate * stepsCount;
+        if (deltaStepsCount < 1)
+            return;
+
         float sampleStep = deltaSample / deltaStepsCount;
         float rateStep = deltaRate / deltaStepsCount;
+
+        //Debug.Log($"deltaRate = {deltaRate}; deltaSample = {deltaSample}; sampleStep = {sampleStep}; rateStep = {rateStep}; deltaStepsCount = {deltaStepsCount};");
+
+        if (deltaStepsCount <= 0 || sampleStep <= 0 || rateStep <= 0)
+            return;
 
         while (oldRatePosition < newRatePosition)
         {
             float xPosition = GetXPosition(oldRatePosition);
 
             float soundValue = microphonOperator.GetLoudness((int)oldSamplePosition, (int)sampleStep + 1);
-            DrawVolumePoint(soundValue, xPosition);
+            DrawVolumePoint(soundValue, xPosition, oldRatePosition);
 
             oldSamplePosition += sampleStep;
             oldRatePosition += rateStep;
@@ -81,14 +91,14 @@ public class DiagramOperator : MonoBehaviour
         return Mathf.Lerp(startPosition, endPosition, positionInRate);
     }
 
-    private void DrawVolumePoint(float soundValue, float xPosition)
+    private void DrawVolumePoint(float soundValue, float xPosition, float ratePosition)
     {
         if (soundValue < CoreValuesHUB.decibelGate)
             soundValue = 0;
 
         soundValue = Mathf.Lerp(minValue, maxValue, soundValue);
         lineRenderer.positionCount++;
-        Vector3 nextPosition = new Vector3(xPosition, soundValue, 0f);
+        Vector3 nextPosition = new Vector3(xPosition, soundValue, ratePosition);
 
         lineRenderer.SetPosition(lineRenderer.positionCount - 1, nextPosition);
     }
@@ -119,8 +129,21 @@ public class DiagramOperator : MonoBehaviour
         decibelCursor.anchoredPosition = new Vector3(0f, decibelValue, 0f);
     }
 
-    public NoteCheckResult MelodySuccessNoteCheck(int i)
+    public NoteCheckResult MelodySuccessNoteCheck(int index)
     {
+        bool isStartSound = false;
+        bool isEndSound = false;
+
+        if (isStartSound)
+        {
+            return NoteCheckResult.Fast;
+        }
+
+        if(!isEndSound)
+        {
+            return NoteCheckResult.Slow;
+        }
+
         return NoteCheckResult.None;
     }
 }

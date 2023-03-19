@@ -21,7 +21,7 @@ public class LogicCore : MonoBehaviour
     private void Start()
     {
 
-        playModeOperator.melodies = new Melody[1] { new Melody(GetSoundLengthInSeconds()) };
+        playModeOperator.melodies = new Melody[1] { new Melody() };
         ResetEvent();
     }
 
@@ -38,16 +38,18 @@ public class LogicCore : MonoBehaviour
         CoreValuesHUB.PlayMode.SetValue(PlayMode.Stop);
         noteBeltOperator.enabled = false;
         diagramOperator.enabled = false;
+        playModeOperator.enabled = false;
         startText.text = PlayMode.Play.ToString();
     }
 
     private void EnabledBeltOperator()
     {
         CoreValuesHUB.PlayMode.SetValue(PlayMode.Play);
-        //resultOperator.ResetEvent();
-        diagramOperator.ResetEvent();
         noteBeltOperator.enabled = true;
         diagramOperator.enabled = true;
+        playModeOperator.enabled = true;
+        diagramOperator.ResetEvent();
+        playModeOperator.ResetEvent();
         startText.text = PlayMode.Stop.ToString();
     }
 
@@ -81,7 +83,7 @@ public class LogicCore : MonoBehaviour
         {
             case CoreValue.BeatsPerMinute:
                 CoreValuesHUB.BeatsPerMinute.SetValue(newValue);
-                DisabledBeltOperator();
+                noteBeltOperator.ReflectEvent();
                 break;
             case CoreValue.DecibelGate:
                 CoreValuesHUB.DecibelGate.SetValue(newValue / 100f);//%
@@ -101,18 +103,9 @@ public class LogicCore : MonoBehaviour
     }
     public void ResetEvent()
     {
-        DisabledBeltOperator();
         playModeOperator.ResetEvent();
+        diagramOperator.ResetEvent();
         diagramOperator.SetDecibelGate();
         noteBeltOperator.ReflectEvent();
-    }
-
-    public float GetSoundLengthInSeconds()
-    {
-        float soundLength = Melody.NOTES_COUNT / CoreValuesHUB.beatsPerSecond;
-
-        CoreValuesHUB.MelodyLengthInSeconds.SetValue(soundLength);
-
-        return soundLength;
     }
 }

@@ -25,7 +25,7 @@ public class MicrophonOperator : MonoBehaviour
         microphoneClip = Microphone.Start(
             microphoneName,
             loop: true,
-            lengthSec: (int)(logicCore.GetSoundLengthInSeconds() + 1),//extra second of safe
+            lengthSec: 241,// melody have 4 notes. And min bpm is 1/min = 240sec lenght + 1 second of safe
             AudioSettings.outputSampleRate);
 
         if (microphoneClip != null)
