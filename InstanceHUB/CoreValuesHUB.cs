@@ -9,7 +9,7 @@ public static class CoreValuesHUB
 
     public static float melodyPositionInRate => MelodyPositionInRate.GetValue();
 
-    public static float melodyLengthInSeconds => beatsPerSecond * 4;//4 notes per tact
+    public static float melodyLengthInSeconds => 4 / beatsPerSecond;//4 notes per tact
     public static float melodyLengthInUnits => MelodyLengthInUnits.GetValue();
 
     public static int beatsPerMinute => BeatsPerMinute.GetValue();

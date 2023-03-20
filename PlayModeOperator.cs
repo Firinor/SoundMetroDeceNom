@@ -65,4 +65,9 @@ public class PlayModeOperator : MonoBehaviour
 
         logicCore.ResetMicrophone();
     }
+
+    public float GetFirstMelodyNotePosition(int index)
+    {
+        return melodies[0].GetNotePosition(index);
+    }
 }

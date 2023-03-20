@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class DiagramOperator : MonoBehaviour
@@ -8,6 +10,8 @@ public class DiagramOperator : MonoBehaviour
     private RectTransform decibelCursor;
     [SerializeField]
     private LineRenderer lineRenderer;
+    //volumePoints.x is sound value; volumePoints.y is position rate
+    private List<Vector3> volumePoints = new List<Vector3>();
     [SerializeField]
     private float lineWidth;
     [SerializeField]
@@ -80,6 +84,7 @@ public class DiagramOperator : MonoBehaviour
 
             float soundValue = microphonOperator.GetLoudness((int)oldSamplePosition, (int)sampleStep + 1);
             DrawVolumePoint(soundValue, xPosition, oldRatePosition);
+            volumePoints.Add(new Vector3(soundValue, oldRatePosition, 0f));
 
             oldSamplePosition += sampleStep;
             oldRatePosition += rateStep;
@@ -118,7 +123,10 @@ public class DiagramOperator : MonoBehaviour
     public void ResetEvent()
     {
         timeCursor.anchoredPosition = new Vector3(startPosition, 0f, 0f);
+
+        volumePoints.Clear();
         lineRenderer.positionCount = 0;
+
         oldSamplePosition = 0;
         oldRatePosition = 0;
     }
@@ -129,21 +137,32 @@ public class DiagramOperator : MonoBehaviour
         decibelCursor.anchoredPosition = new Vector3(0f, decibelValue, 0f);
     }
 
-    public NoteCheckResult MelodySuccessNoteCheck(int index)
+    public float GetLoudness(float noteCheckStartPosition, float noteCheckEndPosition)
     {
-        bool isStartSound = false;
-        bool isEndSound = false;
+        List<float> loudness = new List<float>();
 
-        if (isStartSound)
+        for(int i = 0; i < volumePoints.Count; i++)
         {
-            return NoteCheckResult.Fast;
+            if (volumePoints[i].y >= noteCheckStartPosition
+                && volumePoints[i].y <= noteCheckEndPosition)
+            {
+                loudness.Add(volumePoints[i].x);
+            }
         }
 
-        if(!isEndSound)
+        if(loudness.Count == 0)
         {
-            return NoteCheckResult.Slow;
+            return -1f;
         }
 
-        return NoteCheckResult.None;
+        return Mathf.Max(loudness.ToArray());
+    }
+
+    public float GetPositionInRate()
+    {
+        if(volumePoints.Count == 0)
+            return 0f;
+
+        return volumePoints[volumePoints.Count - 1].y;
     }
 }

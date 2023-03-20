@@ -48,6 +48,7 @@ public class LogicCore : MonoBehaviour
         noteBeltOperator.enabled = true;
         diagramOperator.enabled = true;
         playModeOperator.enabled = true;
+        noteBeltOperator.ResetEvent();
         diagramOperator.ResetEvent();
         playModeOperator.ResetEvent();
         startText.text = PlayMode.Stop.ToString();
@@ -106,6 +107,7 @@ public class LogicCore : MonoBehaviour
         playModeOperator.ResetEvent();
         diagramOperator.ResetEvent();
         diagramOperator.SetDecibelGate();
+        noteBeltOperator.ResetEvent();
         noteBeltOperator.ReflectEvent();
     }
 }

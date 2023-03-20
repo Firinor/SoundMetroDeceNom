@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,11 +6,15 @@ public class NoteBeltOperator : MonoBehaviour
 {
     [SerializeField]
     private NoteOperator[] notes;
-    private List<int> notesToCheck;
+    private List<int> notesToCheck = new List<int>();
 
     private MicrophonOperator microphonOperator => (MicrophonOperator)CoreHUB.microphonOperator;
     private DiagramOperator diagramOperator => (DiagramOperator)CoreHUB.diagramOperator;
     private PlayModeOperator playModeOperator => (PlayModeOperator)CoreHUB.playModeOperator;
+
+    private float reactionInRate;
+    private float startPosition = 0;
+    private float endPosition = 0;
 
     private void Awake()
     {
@@ -17,8 +22,6 @@ public class NoteBeltOperator : MonoBehaviour
         enabled = CoreValuesHUB.playMode == PlayMode.Play;
 
         playModeOperator.ResetAction += ResetEvent;
-
-        notesToCheck = new List<int>();
     }
 
     private void Update()
@@ -30,10 +33,12 @@ public class NoteBeltOperator : MonoBehaviour
     {
         for(int i = 0; i < notesToCheck.Count; i++)
         {
+            float notePosition = playModeOperator.GetFirstMelodyNotePosition(notesToCheck[i]);
 
-            //if(notes[notesToCheck[i]].)
+            if (!isNoteReadyToCheck(notePosition))
+                break;
 
-            NoteCheckResult result = diagramOperator.MelodySuccessNoteCheck(notesToCheck[i]);
+            NoteCheckResult result = MelodySuccessNoteCheck(notePosition);
 
             switch (result)
             {
@@ -54,6 +59,41 @@ public class NoteBeltOperator : MonoBehaviour
         }
     }
 
+    private bool isNoteReadyToCheck(float notePosition)
+    {
+        float noteCheckEndPosition = notePosition + endPosition;
+
+        return diagramOperator.GetPositionInRate() > noteCheckEndPosition;
+    }
+
+    public NoteCheckResult MelodySuccessNoteCheck(float notePosition)
+    {
+        float noteCheckStartPosition = notePosition + startPosition;
+        float soundOnStartValue = diagramOperator.GetLoudness(noteCheckStartPosition - reactionInRate / 2, noteCheckStartPosition);
+
+        if (soundOnStartValue < 0)
+            return NoteCheckResult.None;
+
+        bool isStartSound = soundOnStartValue >= CoreValuesHUB.decibelGate;
+
+        if (isStartSound)
+            return NoteCheckResult.Fast;
+
+        float noteCheckEndPosition = notePosition + endPosition;
+        float soundOnEndValue = diagramOperator.GetLoudness(noteCheckStartPosition, noteCheckEndPosition);
+
+        if (soundOnEndValue < 0)
+            return NoteCheckResult.None;
+
+        bool isEndSound = soundOnEndValue >= CoreValuesHUB.decibelGate;
+
+        if (!isEndSound)
+            return NoteCheckResult.Slow;
+
+        //All checks have been passed
+        return NoteCheckResult.Success;
+    }
+
     public void ResetEvent()
     {
         notesToCheck.Clear();
@@ -67,9 +107,17 @@ public class NoteBeltOperator : MonoBehaviour
 
     public void ReflectEvent()
     {
+        float melodyUnitsInSecond = CoreValuesHUB.melodyLengthInUnits / CoreValuesHUB.melodyLengthInSeconds;
+        //reaction in milliseconds. It should be divided by 1000 to convert in seconds
+        float reactionInUnit = melodyUnitsInSecond * (CoreValuesHUB.reaction / 1000f);
+        reactionInRate = (CoreValuesHUB.reaction / 1000f) / CoreValuesHUB.melodyLengthInSeconds;
+
         for (int i = 0; i < notes.Length; i++)
         {
-            notes[i].SetReflectPosition();
+            notes[i].SetReflectPosition(reactionInUnit);
         }
+
+        startPosition = -reactionInRate / 2;
+        endPosition = startPosition + reactionInRate;
     }
 }
