@@ -122,6 +122,7 @@ public class DiagramOperator : MonoBehaviour
 
     public void ResetEvent()
     {
+        //TO DO DEBUG RESET EVENT
         timeCursor.anchoredPosition = new Vector3(startPosition, 0f, 0f);
 
         volumePoints.Clear();
