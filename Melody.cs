@@ -21,7 +21,7 @@ public class Melody
         melody = new Note[NOTES_COUNT];
 
         float eighthShare = 1 / (float)Duration.EIGHTH;
-        float positionShift = eighthShare / 2;//half
+        float positionShift = eighthShare / 2f;//half
 
         for (int i = 0; i < melody.Length; i++)
         {
@@ -49,7 +49,7 @@ public class Melody
 
         for(int i = 0; i < melody.Length; i++)
         {
-            if(!melody[i].isPlayed && melody[i].position > start && melody[i].position < end)
+            if(!melody[i].isPlayed && melody[i].position >= start && melody[i].position < end)
             {
                 melody[i].isPlayed = true;
                 return melody[i].clip;

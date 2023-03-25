@@ -55,7 +55,7 @@ public class PlayModeOperator : MonoBehaviour
 
     public void ResetEvent()
     {
-        playRate = 0;
+        playRate -= 1;
         CoreValuesHUB.MelodyPositionInRate.SetValue(playRate);
 
         foreach (var melody in melodies)
