@@ -5,19 +5,24 @@ public class PlayModeOperator : MonoBehaviour
 {
     private float playRate = 0;
     private float deltaPlayRate = 0;
+
+    [SerializeField, Min(0)]
+    private float notesSoundDelay = 0;
+    private float notesDelay => notesSoundDelay/100f;
+
     public Melody[] melodies;
 
     [SerializeField]
     private AudioSource audioSource;
 
-    public Action ResetAction;
+    public Action ShiftAction;
 
     private LogicCore logicCore => (LogicCore)CoreHUB.logicCore;
 
     private void Awake()
     {
         CoreHUB.PlayModeOperator.SetValue(this);
-        ResetAction += ResetEvent;
+        ShiftAction += ShiftEvent;
     }
 
     void Update()
@@ -31,7 +36,7 @@ public class PlayModeOperator : MonoBehaviour
 
         if (playRate >= 1)
         {
-            ResetAction?.Invoke();
+            ShiftAction?.Invoke();
             return;
         }
 
@@ -44,7 +49,7 @@ public class PlayModeOperator : MonoBehaviour
     {
         foreach (var melody in melodies)
         {
-            AudioClip clip = melody.CheckNotes(playRate, deltaPlayRate);
+            AudioClip clip = melody.CheckNotes(playRate + notesDelay, deltaPlayRate);
             if(clip != null)
             {
                 audioSource.clip = clip;
@@ -53,16 +58,26 @@ public class PlayModeOperator : MonoBehaviour
         }
     }
 
-    public void ResetEvent()
+    public void ShiftEvent()
     {
         playRate -= 1;
         CoreValuesHUB.MelodyPositionInRate.SetValue(playRate);
+        ResetMelody();
+    }
 
+    private void ResetMelody()
+    {
         foreach (var melody in melodies)
         {
             melody.ResetEvent();
         }
+    }
 
+    public void ResetEvent()
+    {
+        playRate = 0;
+        CoreValuesHUB.MelodyPositionInRate.SetValue(playRate);
+        ResetMelody();
         logicCore.ResetMicrophone();
     }
 

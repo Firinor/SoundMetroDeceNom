@@ -20,7 +20,6 @@ public class LogicCore : MonoBehaviour
     }
     private void Start()
     {
-
         playModeOperator.melodies = new Melody[1] { new Melody() };
         ResetEvent();
     }

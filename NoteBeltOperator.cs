@@ -21,7 +21,7 @@ public class NoteBeltOperator : MonoBehaviour
         CoreHUB.NoteBeltOperator.SetValue(this);
         enabled = CoreValuesHUB.playMode == PlayMode.Play;
 
-        playModeOperator.ResetAction += ResetEvent;
+        playModeOperator.ShiftAction += ResetEvent;
     }
 
     private void Update()

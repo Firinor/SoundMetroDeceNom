@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,7 +8,8 @@ public class MicrophonOperator : MonoBehaviour
     [SerializeField]
     private Image image;
 
-    private LogicCore logicCore => (LogicCore)CoreHUB.logicCore;
+    private int currentSampleCursor = 0;
+    private int recordingLength = 0;
 
     private void Awake()
     {
@@ -22,30 +24,72 @@ public class MicrophonOperator : MonoBehaviour
 
     public void StartRecording(string microphoneName)
     {
+        int lengthSec = 1;
+
         microphoneClip = Microphone.Start(
             microphoneName,
             loop: true,
-            lengthSec: 241,// melody have 4 notes. And min bpm is 1/min = 240sec lenght + 1 second of safe
+            lengthSec,// melody have 4 notes. And min bpm is 1/min = 240sec lenght + 1 second of safe
             AudioSettings.outputSampleRate);
 
         if (microphoneClip != null)
             image.gameObject.SetActive(false);
+
+        recordingLength = lengthSec * AudioSettings.outputSampleRate;
     }
     public int GetMicrophonePositionInSamples()
     {
         return Microphone.GetPosition(Microphone.devices[0]);
     }
-
-    public float GetLoudness(int clipPosition, int sampleWindow)
+    public int GetMicrophoneDeltaInSamples()
     {
-        int startPosition = clipPosition - sampleWindow;
+        int position = GetMicrophonePositionInSamples();
+
+        int result = position - currentSampleCursor;
+
+        if (result < 0)
+            result += recordingLength;
+
+        currentSampleCursor = position;
+        
+        return result;
+    }
+
+    public float GetLoudness(int minusPosition, int sampleWindow)
+    {
+        int startPosition = currentSampleCursor + minusPosition - sampleWindow;
+
+        float[] redata = null;
+        float[] data = null;
 
         if (startPosition < 0)
-            startPosition = 0;
+        {
+            redata = new float[-startPosition];
+            microphoneClip.GetData(redata, recordingLength + startPosition);
 
-        float[] data = new float[sampleWindow];
-        microphoneClip.GetData(data, startPosition);
-        for(int i = 0; i < data.Length; i++)
+            sampleWindow += startPosition;
+            startPosition = 0;
+        }
+
+        if (sampleWindow > 0)
+        {
+            data = new float[sampleWindow];
+            microphoneClip.GetData(data, startPosition);
+        }
+
+        if (redata != null)
+        {
+            if (data != null)
+            {
+                data = redata.Concat(data).ToArray();
+            }
+            else
+            {
+                data = redata;
+            }
+        }
+
+        for (int i = 0; i < data.Length; i++)
         {
             data[i] = Mathf.Abs(data[i]);
         }
