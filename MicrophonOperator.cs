@@ -24,7 +24,7 @@ public class MicrophonOperator : MonoBehaviour
 
     public void StartRecording(string microphoneName)
     {
-        int lengthSec = 1;
+        int lengthSec = 10;
 
         microphoneClip = Microphone.Start(
             microphoneName,

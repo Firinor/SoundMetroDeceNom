@@ -6,18 +6,19 @@ public class PlayModeOperator : MonoBehaviour
     private float playRate = 0;
     private float deltaPlayRate = 0;
 
+    private int count = 0;
+
+
     [SerializeField, Min(0)]
     private float notesSoundDelay = 0;
     private float notesDelay => notesSoundDelay/100f;
 
     public Melody[] melodies;
 
-    [SerializeField]
-    private AudioSource audioSource;
-
     public Action ShiftAction;
 
     private LogicCore logicCore => (LogicCore)CoreHUB.logicCore;
+    private AudioOutputOperator audioOperator => (AudioOutputOperator)CoreHUB.audioOperator;
 
     private void Awake()
     {
@@ -25,12 +26,12 @@ public class PlayModeOperator : MonoBehaviour
         ShiftAction += ShiftEvent;
     }
 
-    void Update()
+    void FixedUpdate()
     {
         if (melodies == null || melodies.Length == 0)
             return;
 
-        float deltaTime = Time.deltaTime * CoreValuesHUB.beatsPerSecond;
+        float deltaTime = Time.fixedDeltaTime * CoreValuesHUB.beatsPerSecond;
         deltaPlayRate = deltaTime / Melody.NOTES_PER_TACT;
         playRate += deltaPlayRate;
 
@@ -42,6 +43,9 @@ public class PlayModeOperator : MonoBehaviour
 
         CoreValuesHUB.MelodyPositionInRate.SetValue(playRate);
 
+        Debug.Log(count);
+        count++;
+
         PlayNotes();
     }
 
@@ -52,8 +56,7 @@ public class PlayModeOperator : MonoBehaviour
             AudioClip clip = melody.CheckNotes(playRate + notesDelay, deltaPlayRate);
             if(clip != null)
             {
-                audioSource.clip = clip;
-                audioSource.Play();
+                audioOperator.PlayClip(clip);
             }
         }
     }
