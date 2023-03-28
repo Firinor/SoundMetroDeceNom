@@ -11,7 +11,7 @@ public class PlayModeOperator : MonoBehaviour
 
     [SerializeField, Min(0)]
     private float notesSoundDelay = 0;
-    private float notesDelay => notesSoundDelay/100f;
+    private float notesDelay => -notesSoundDelay/100f;
 
     public Melody[] melodies;
 

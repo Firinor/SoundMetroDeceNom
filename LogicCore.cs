@@ -7,6 +7,8 @@ public class LogicCore : MonoBehaviour
     private TextMeshProUGUI difficultyText;
     [SerializeField]
     private TextMeshProUGUI startText;
+    [SerializeField]
+    private Debuger debuger;
 
     private ResultOperator resultOperator => (ResultOperator)CoreHUB.resultOperator;
     private NoteBeltOperator noteBeltOperator => (NoteBeltOperator)CoreHUB.noteBeltOperator;
@@ -51,6 +53,7 @@ public class LogicCore : MonoBehaviour
         diagramOperator.ResetEvent();
         playModeOperator.ResetEvent();
         startText.text = PlayMode.Stop.ToString();
+        debuger.Reset();
     }
 
     public void OnDifficultyButton()
