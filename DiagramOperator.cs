@@ -10,8 +10,18 @@ public class DiagramOperator : MonoBehaviour
     private RectTransform decibelCursor;
     [SerializeField]
     private LineRenderer lineRenderer;
-    //volumePoints.x is sound value; volumePoints.y is position rate
-    private List<Vector3> volumePoints = new List<Vector3>();
+
+    //750 is estimated number of steps on the screen with a margin
+    private int stepsOnTheScreen = 750;
+
+    //volumePoints.x is sound value; volumePoints.y is position rate;
+    
+    private List<Vector3> volumePoints;
+    //We start drawing diatram from step 200
+    private int loudnessIndex = 200;
+    [SerializeField]
+    private Vector3 startPoint;
+
     [SerializeField]
     private float lineWidth;
     [SerializeField]
@@ -37,14 +47,27 @@ public class DiagramOperator : MonoBehaviour
     private void Awake()
     {
         CoreHUB.DiagramOperator.SetValue(this);
-
-        lineRenderer.startWidth = lineWidth;
-        lineRenderer.endWidth = lineWidth;
+        //LineRendererInitialization();
 
         CoreValuesHUB.MelodyLengthInUnits.SetValue(endPosition - startPosition);
 
         playModeOperator.ShiftAction += ResetEvent;
     }
+
+    private void LineRendererInitialization()
+    {
+        volumePoints = new List<Vector3>();
+
+        lineRenderer.startWidth = lineWidth;
+        lineRenderer.endWidth = lineWidth;
+        lineRenderer.positionCount = stepsOnTheScreen;
+        for(int i = 0; i < stepsOnTheScreen; i++)
+        {
+            lineRenderer.SetPosition(i, startPoint);
+            volumePoints.Add(startPoint);
+        }
+    }
+
     private void Update()
     {
         float deltaSample = microphonOperator.GetMicrophoneDeltaInSamples();
@@ -52,7 +75,7 @@ public class DiagramOperator : MonoBehaviour
             return;
 
         MoveCursor();
-        DrawVolumeLine(deltaSample);
+        //DrawVolumeLine(deltaSample);
     }
 
     private void DrawVolumeLine(float deltaSample)
@@ -83,11 +106,23 @@ public class DiagramOperator : MonoBehaviour
 
             float soundValue = microphonOperator.GetLoudness((int)deltaSample, (int)sampleStep);
             DrawVolumePoint(soundValue, xPosition, oldRatePosition);
-            volumePoints.Add(new Vector3(soundValue, oldRatePosition, 0f));
+            SetNewPoint(new Vector3(soundValue, oldRatePosition, 0f));
 
             deltaSample += sampleStep;
             oldRatePosition += rateStep;
         }
+    }
+
+    private void SetNewPoint(Vector3 vector3)
+    {
+        int endIndex = stepsOnTheScreen - 2;
+
+        //for(int i = 0; i < endIndex; i++)
+        //{
+        //    Debug.Log(i);
+        //    volumePoints[i] = volumePoints[i+1];
+        //}
+        //volumePoints[stepsOnTheScreen-1] = vector3;
     }
 
     private float GetXPosition(float positionInRate)
@@ -101,10 +136,17 @@ public class DiagramOperator : MonoBehaviour
             soundValue = 0;
 
         soundValue = Mathf.Lerp(minValue, maxValue, soundValue);
-        lineRenderer.positionCount++;
+
         Vector3 nextPosition = new Vector3(xPosition, soundValue, ratePosition);
 
-        lineRenderer.SetPosition(lineRenderer.positionCount - 1, nextPosition);
+        int endIndex = stepsOnTheScreen - 2;
+
+        for (int i = 0; i < endIndex; i++)
+        {
+            lineRenderer.SetPosition(i, lineRenderer.GetPosition(i+1));
+        }
+
+        lineRenderer.SetPosition(stepsOnTheScreen - 1, nextPosition);
     }
 
     private void MoveCursor()
@@ -121,32 +163,28 @@ public class DiagramOperator : MonoBehaviour
 
     public void ResetEvent()
     {
-        //TO DO DEBUG RESET EVENT
         timeCursor.anchoredPosition = new Vector3(startPosition, 0f, 0f);
 
-        volumePoints.Clear();
-        //lineRenderer.positionCount = 0;
-        ShiftLineRenderer();
+        //ShiftLineRenderer();
 
         oldRatePosition = 0;
     }
 
     private void ShiftLineRenderer()
     {
-        float edge = leftEdgePosition + CoreValuesHUB.melodyLengthInUnits;
-        int j = 0;
+        int j = 200-1;
         Vector3 shiftPosition = new Vector3(-CoreValuesHUB.melodyLengthInUnits, 0, -1f);//"z" is a rate value.
 
-        for (int i = 0; i < lineRenderer.positionCount; i++)
+        while(j > 0)
         {
-            if (lineRenderer.GetPosition(i).x < edge)
-                continue;
+            lineRenderer.SetPosition(j, lineRenderer.GetPosition(loudnessIndex) + shiftPosition);
+            loudnessIndex--;
 
-            lineRenderer.SetPosition(j, lineRenderer.GetPosition(i) + shiftPosition);
-            j++;
+            if(loudnessIndex < 0) 
+                break;
+
+            j--;
         }
-
-        lineRenderer.positionCount = j;
     }
 
     public void SetDecibelGate()
@@ -157,30 +195,31 @@ public class DiagramOperator : MonoBehaviour
 
     public float GetLoudness(float noteCheckStartPosition, float noteCheckEndPosition)
     {
-        List<float> loudness = new List<float>();
+        float maxValue = 0;
+        //for(int i = 0; i < volumePoints.Count; i++)
+        //{
+        //    if (volumePoints[i].y >= noteCheckStartPosition
+        //        && volumePoints[i].y <= noteCheckEndPosition
+        //        && maxValue < volumePoints[i].x)
+        //    {
+        //        maxValue = volumePoints[i].x;
+        //    }
+        //}
 
-        for(int i = 0; i < volumePoints.Count; i++)
-        {
-            if (volumePoints[i].y >= noteCheckStartPosition
-                && volumePoints[i].y <= noteCheckEndPosition)
-            {
-                loudness.Add(volumePoints[i].x);
-            }
-        }
-
-        if(loudness.Count == 0)
-        {
-            return -1f;
-        }
-
-        return Mathf.Max(loudness.ToArray());
+        return maxValue;
     }
 
     public float GetPositionInRate()
     {
-        if(volumePoints.Count == 0)
-            return 0f;
+        float maxValue = 0;
+        //for (int i = 0; i < volumePoints.Count; i++)
+        //{
+        //    if (maxValue < volumePoints[i].y)
+        //    {
+        //        maxValue = volumePoints[i].y;
+        //    }
+        //}
 
-        return volumePoints[volumePoints.Count - 1].y;
+        return maxValue;
     }
 }

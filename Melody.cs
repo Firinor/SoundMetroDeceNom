@@ -52,7 +52,7 @@ public class Melody
             if(!melody[i].isPlayed && melody[i].position >= start && melody[i].position < end)
             {
                 melody[i].isPlayed = true;
-                Debug.Log($"TIME({Time.time}) cursorPosition {cursorPosition}, deltaRate {deltaRate}, melody[{i}] position {melody[i].position}");
+                //Debug.Log($"TIME({Time.time}) cursorPosition {cursorPosition}, deltaRate {deltaRate}, melody[{i}] position {melody[i].position}");
                 return melody[i].clip;
             }
         }

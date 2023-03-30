@@ -10,13 +10,14 @@ public class Debuger : MonoBehaviour
     private TextMeshProUGUI text;
     private float min = float.MaxValue;
     private float max = float.MinValue;
+
     [SerializeField]
     private float resetTimer = 5f;
     private float timer = 0f;
 
     void Awake()
     {
-        Application.targetFrameRate = 60;
+        Application.targetFrameRate = 0;
     }
     public void ResetEvent()
     {
@@ -43,7 +44,7 @@ public class Debuger : MonoBehaviour
             max = Time.deltaTime;
         }
 
-        text.text = $"FPS: {Application.targetFrameRate};" + Environment.NewLine +
+        text.text = $"FPS: {1/ min} / {1 / max};" + Environment.NewLine +
             $" min {min}; max {max}!;";
     }
 }

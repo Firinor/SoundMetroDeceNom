@@ -43,7 +43,7 @@ public class PlayModeOperator : MonoBehaviour
 
         CoreValuesHUB.MelodyPositionInRate.SetValue(playRate);
 
-        Debug.Log(count);
+        //Debug.Log(count);
         count++;
 
         PlayNotes();

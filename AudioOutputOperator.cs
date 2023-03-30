@@ -1,9 +1,12 @@
 using UnityEngine;
+using System.Media;
 
 public class AudioOutputOperator : MonoBehaviour
 {
     [SerializeField]
     private AudioSource audioSources;
+
+    private SoundPlayer soundPlayer;
 
     private void Awake()
     {
@@ -12,6 +15,7 @@ public class AudioOutputOperator : MonoBehaviour
 
     public void PlayClip(AudioClip clip)
     {
+
         audioSources.PlayOneShot(clip);
     }
 }
