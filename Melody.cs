@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Melody
@@ -7,12 +8,14 @@ public class Melody
     public const int NOTES_PER_TACT = 4;
 
     public Note[] melody;
+    public List<AudioClip> resultClips;
     public AudioSource AudioSource;
 
     //private int notesPerTact = 4;
 
     public Melody()
     {
+        resultClips = new List<AudioClip>();
         SetNewDefaultMelody();
     }
 
@@ -42,10 +45,12 @@ public class Melody
         }
     }
 
-    internal AudioClip CheckNotes(float cursorPosition, float deltaRate)
+    internal AudioClip[] CheckNotes(double cursorPosition, double deltaRate)
     {
-        float start = cursorPosition - deltaRate;
-        float end = cursorPosition;
+        double start = cursorPosition - deltaRate;
+        double end = cursorPosition;
+
+        resultClips.Clear();
 
         for(int i = 0; i < melody.Length; i++)
         {
@@ -53,8 +58,14 @@ public class Melody
             {
                 melody[i].isPlayed = true;
                 //Debug.Log($"TIME({Time.time}) cursorPosition {cursorPosition}, deltaRate {deltaRate}, melody[{i}] position {melody[i].position}");
-                return melody[i].clip;
+                resultClips.Add(melody[i].clip);
+                Debuger.noteCount++;
             }
+        }
+
+        if( resultClips.Count > 0 )
+        {
+            return resultClips.ToArray();
         }
 
         return null;

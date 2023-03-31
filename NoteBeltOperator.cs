@@ -107,10 +107,10 @@ public class NoteBeltOperator : MonoBehaviour
 
     public void ReflectEvent()
     {
-        float melodyUnitsInSecond = CoreValuesHUB.melodyLengthInUnits / CoreValuesHUB.melodyLengthInSeconds;
+        float melodyUnitsInSecond = CoreValuesHUB.melodyLengthInUnits / (float)CoreValuesHUB.melodyLengthInSeconds;
         //reaction in milliseconds. It should be divided by 1000 to convert in seconds
         float reactionInUnit = melodyUnitsInSecond * (CoreValuesHUB.reaction / 1000f);
-        reactionInRate = (CoreValuesHUB.reaction / 1000f) / CoreValuesHUB.melodyLengthInSeconds;
+        reactionInRate = (CoreValuesHUB.reaction / 1000f) / (float)CoreValuesHUB.melodyLengthInSeconds;
 
         for (int i = 0; i < notes.Length; i++)
         {

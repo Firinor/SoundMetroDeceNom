@@ -53,7 +53,7 @@ public class LogicCore : MonoBehaviour
         diagramOperator.ResetEvent();
         playModeOperator.ResetEvent();
         startText.text = PlayMode.Stop.ToString();
-        debuger.ResetEvent();
+        //debuger.ResetEvent();
     }
 
     public void OnDifficultyButton()

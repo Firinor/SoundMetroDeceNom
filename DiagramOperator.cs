@@ -80,7 +80,7 @@ public class DiagramOperator : MonoBehaviour
 
     private void DrawVolumeLine(float deltaSample)
     {
-        float newRatePosition = CoreValuesHUB.melodyPositionInRate;
+        float newRatePosition = (float)CoreValuesHUB.melodyPositionInRate;
         float deltaRate = newRatePosition - oldRatePosition;
 
         if (deltaRate <= 0)
@@ -156,7 +156,7 @@ public class DiagramOperator : MonoBehaviour
             ResetEvent();
         }
 
-        float xPosition = Mathf.Lerp(startPosition, endPosition, CoreValuesHUB.melodyPositionInRate);
+        float xPosition = Mathf.Lerp(startPosition, endPosition, (float)CoreValuesHUB.melodyPositionInRate);
 
         timeCursor.anchoredPosition = new Vector3(xPosition, 0f, 0f);
     }

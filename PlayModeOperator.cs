@@ -3,15 +3,18 @@ using UnityEngine;
 
 public class PlayModeOperator : MonoBehaviour
 {
-    private float playRate = 0;
-    private float deltaPlayRate = 0;
+    private double playRate = 0;
+    private double deltaPlayRate = 0;
 
-    private int count = 0;
-
+    private double timer;
+    private double BPS;
+    private double BPM;
+    private double oldAudioTime = 0;
+    private double currentTimer;
 
     [SerializeField, Min(0)]
-    private float notesSoundDelay = 0;
-    private float notesDelay => -notesSoundDelay/100f;
+    private double notesSoundDelay = 0;
+    private double notesDelay => -notesSoundDelay/100d;
 
     public Melody[] melodies;
 
@@ -26,13 +29,26 @@ public class PlayModeOperator : MonoBehaviour
         ShiftAction += ShiftEvent;
     }
 
-    void FixedUpdate()
+    private void Start()
+    {
+        ResetEvent();
+    }
+
+    void Update()
     {
         if (melodies == null || melodies.Length == 0)
             return;
 
-        float deltaTime = Time.fixedDeltaTime * CoreValuesHUB.beatsPerSecond;
-        deltaPlayRate = deltaTime / Melody.NOTES_PER_TACT;
+        double deltaTime = AudioSettings.dspTime - oldAudioTime;
+        if (deltaTime <= 0)
+            return;
+        Debuger.totalTimer += deltaTime;
+
+        deltaTime *= CoreValuesHUB.beatsPerSecond;
+
+        oldAudioTime = AudioSettings.dspTime;
+
+        deltaPlayRate = deltaTime / (double)Melody.NOTES_PER_TACT;
         playRate += deltaPlayRate;
 
         if (playRate >= 1)
@@ -41,10 +57,14 @@ public class PlayModeOperator : MonoBehaviour
             return;
         }
 
-        CoreValuesHUB.MelodyPositionInRate.SetValue(playRate);
+        if(Debuger.totalTimer >= 30)
+        {
+            Debug.Log($"totalTimer {Debuger.totalTimer}; noteCount {Debuger.noteCount}");
+            Debuger.totalTimer -= 30;
+            Debuger.noteCount = 0;
+        }
 
-        //Debug.Log(count);
-        count++;
+        CoreValuesHUB.MelodyPositionInRate.SetValue(playRate);
 
         PlayNotes();
     }
@@ -53,7 +73,7 @@ public class PlayModeOperator : MonoBehaviour
     {
         foreach (var melody in melodies)
         {
-            AudioClip clip = melody.CheckNotes(playRate + notesDelay, deltaPlayRate);
+            AudioClip[] clip = melody.CheckNotes(playRate + notesDelay, deltaPlayRate);
             if(clip != null)
             {
                 audioOperator.PlayClip(clip);
@@ -78,7 +98,10 @@ public class PlayModeOperator : MonoBehaviour
 
     public void ResetEvent()
     {
+        oldAudioTime = AudioSettings.dspTime;
         playRate = 0;
+        Debuger.totalTimer = 0;
+        Debuger.noteCount = 0;
         CoreValuesHUB.MelodyPositionInRate.SetValue(playRate);
         ResetMelody();
         logicCore.ResetMicrophone();

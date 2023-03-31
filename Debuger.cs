@@ -3,48 +3,115 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Debuger : MonoBehaviour
 {
     [SerializeField]
-    private TextMeshProUGUI text;
-    private float min = float.MaxValue;
-    private float max = float.MinValue;
+    private AudioSource audioSource;
+    [SerializeField]
+    private AudioClip clip1;
 
     [SerializeField]
-    private float resetTimer = 5f;
-    private float timer = 0f;
+    private AudioClip clip2;
+
+    [SerializeField]
+    private double timer;
+    [SerializeField]
+    private double BPS;
+    [SerializeField]
+    private double BPM;
+    private double oldAudioTime = 0;
+    private double currentTimer;
+    public static double totalTimer;
+
+    private int noteIndex;
+    public static int noteCount;
+
+
+    //[SerializeField]
+    //private TextMeshProUGUI text;
+    //private float min = float.MaxValue;
+    //private float max = float.MinValue;
+
+    //[SerializeField]
+    //private float resetTimer = 5f;
+    //private float timer = 0f;
 
     void Awake()
     {
+        oldAudioTime = AudioSettings.dspTime;
         Application.targetFrameRate = 0;
     }
-    public void ResetEvent()
+    //public void ResetEvent()
+    //{
+    //    timer = 0f;
+    //    min = float.MaxValue; max = float.MinValue;
+    //}
+
+    public void SetSpeed(Slider speed)
     {
-        timer = 0f;
-        min = float.MaxValue; max = float.MinValue;
+        timer = speed.value;
+        BPS = 1 / timer;
+        BPM = BPS * 60;
     }
 
     void Update()
     {
-        timer += Time.deltaTime;
+        double delta = AudioSettings.dspTime - oldAudioTime;
 
-        if (timer >= resetTimer)
+        
+
+        if (delta > 0)
         {
-            ResetEvent();
+            totalTimer += delta;
+            currentTimer += delta;
+            oldAudioTime = AudioSettings.dspTime;
         }
 
-        if (min > Time.deltaTime)
+        if (currentTimer > timer)
         {
-            min = Time.deltaTime;
+            noteCount++;
+            Debug.Log("Time left : " + totalTimer + "Notes : " + noteCount);
+            currentTimer -= timer;
+
+            if (noteIndex == 0)
+            {
+                audioSource.clip = clip1;
+
+                audioSource.Play();
+            }
+            else
+            {
+                audioSource.clip = clip2;
+                audioSource.Play();
+            }
+            noteIndex++;
+            if(noteIndex == 8)
+            {
+                noteIndex = 0;
+            }
         }
 
-        if(max < Time.deltaTime)
-        {
-            max = Time.deltaTime;
-        }
 
-        text.text = $"FPS: {1/ min} / {1 / max};" + Environment.NewLine +
-            $" min {min}; max {max}!;";
+            //timer += Time.deltaTime;
+
+            //if (timer >= resetTimer)
+            //{
+            //    ResetEvent();
+            //}
+
+            //if (min > Time.deltaTime)
+            //{
+            //    min = Time.deltaTime;
+            //}
+
+            //if(max < Time.deltaTime)
+            //{
+            //    max = Time.deltaTime;
+            //}
+
+            //text.text = $"FPS: {1/ min} / {1 / max};" + Environment.NewLine +
+            //    $" min {min}; max {max}!;";
     }
 }
