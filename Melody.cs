@@ -11,7 +11,7 @@ public class Melody
     public List<AudioClip> resultClips;
     public AudioSource AudioSource;
 
-    //private int notesPerTact = 4;
+    private int nextIndex;
 
     public Melody()
     {
@@ -23,7 +23,7 @@ public class Melody
     {
         melody = new Note[NOTES_COUNT];
 
-        float eighthShare = 1 / (float)Duration.EIGHTH;
+        float eighthShare = (float)NOTES_PER_TACT / (float)NOTES_COUNT;
         float positionShift = eighthShare / 2f;//half
 
         for (int i = 0; i < melody.Length; i++)
@@ -36,40 +36,64 @@ public class Melody
 
             melody[i] = new Note
             {
-                isPlayed = false,
                 duration = Duration.EIGHTH,
                 position = positionShift + eighthShare * i,
-                noteTipe = NoteTipe.Note,
                 clip = clip
             };
         }
     }
 
-    internal AudioClip[] CheckNotes(double cursorPosition, double deltaRate)
+    internal AudioClip CheckNotes(double songPosition)
     {
-        double start = cursorPosition - deltaRate;
-        double end = cursorPosition;
+        if(nextIndex >= melody.Length)
+            return null;
 
         resultClips.Clear();
 
-        for(int i = 0; i < melody.Length; i++)
+        if (melody[nextIndex].position < songPosition)
         {
-            if(!melody[i].isPlayed && melody[i].position >= start && melody[i].position < end)
-            {
-                melody[i].isPlayed = true;
-                //Debug.Log($"TIME({Time.time}) cursorPosition {cursorPosition}, deltaRate {deltaRate}, melody[{i}] position {melody[i].position}");
-                resultClips.Add(melody[i].clip);
-                Debuger.noteCount++;
-            }
-        }
-
-        if( resultClips.Count > 0 )
-        {
-            return resultClips.ToArray();
+            nextIndex++;
+            Debuger.noteCount++;
+            return melody[nextIndex-1].clip;
         }
 
         return null;
     }
+
+    //private AudioClip CheckNotesFormTwoTakts(double cursorPosition, double deltaRate)
+    //{
+    //    double start = cursorPosition - deltaRate;
+    //    double start2 = start + 1;
+    //    double end = cursorPosition;
+
+    //    resultClips.Clear();
+    //    for (int i = 0; i < melody.Length; i++)
+    //    {
+    //        if (melody[i].position < start)
+    //            continue;
+
+    //        if (!melody[i].isPlayed && melody[i].position < end)
+    //        {
+    //            melody[i].isPlayed = true;
+    //            //Debug.Log($"TIME({Time.time}) cursorPosition {cursorPosition}, deltaRate {deltaRate}, melody[{i}] position {melody[i].position}");
+    //            resultClips.Add(melody[i].clip);
+    //            Debuger.noteCount++;
+    //        }
+    //        //notes of the previous tact
+    //        if (!melody[i].isPlayed && melody[i].position >= start2)
+    //        {
+    //            resultClips.Add(melody[i].clip);
+    //            Debuger.noteCount++;
+    //        }
+    //    }
+
+    //    if (resultClips.Count > 0)
+    //    {
+    //        return resultClips.ToArray();
+    //    }
+
+    //    return null;
+    //}
 
     public Note GetNote(int noteIndex)
     {
@@ -88,18 +112,13 @@ public class Melody
 
     internal void ResetEvent()
     {
-        for (int i = 0; i < melody.Length; i++)
-        {
-            melody[i].isPlayed = false;
-        }
+        nextIndex = 0;
     }
 
     public class Note
     {
-        public bool isPlayed;
         public int tact;
         public float position;
-        public NoteTipe noteTipe;
         public Duration duration;
         public AudioClip clip;
     }

@@ -87,6 +87,7 @@ public class LogicCore : MonoBehaviour
             case CoreValue.BeatsPerMinute:
                 CoreValuesHUB.BeatsPerMinute.SetValue(newValue);
                 noteBeltOperator.ReflectEvent();
+                ResetEvent();
                 break;
             case CoreValue.DecibelGate:
                 CoreValuesHUB.DecibelGate.SetValue(newValue / 100f);//%

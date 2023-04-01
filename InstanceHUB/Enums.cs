@@ -2,7 +2,6 @@ public enum NoteSide { Left, Right }
 public enum CoreValue { BeatsPerMinute, DecibelGate, Reaction }
 public enum Difficulty { Easy, Hormal, Hard }
 public enum PlayMode { Play, Stop }
-public enum NoteTipe { Note, Pause }
 public enum NoteCheckResult { None, Success, Fast, Slow }
 public enum Duration
 {

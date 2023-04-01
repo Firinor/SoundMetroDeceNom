@@ -14,6 +14,7 @@ public static class CoreValuesHUB
 
     public static int beatsPerMinute => BeatsPerMinute.GetValue();
     public static double beatsPerSecond => beatsPerMinute / 60d;
+    public static double secondsPerBeat => 60d / beatsPerMinute;
     public static float decibelGate => DecibelGate.GetValue();
     public static int reaction => Reaction.GetValue();
 

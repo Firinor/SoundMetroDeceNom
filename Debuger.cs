@@ -24,6 +24,7 @@ public class Debuger : MonoBehaviour
     private double oldAudioTime = 0;
     private double currentTimer;
     public static double totalTimer;
+    public static double totalTimer2;
 
     private int noteIndex;
     public static int noteCount;

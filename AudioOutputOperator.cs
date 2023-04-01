@@ -19,8 +19,12 @@ public class AudioOutputOperator : MonoBehaviour
         {
             audioSources.PlayOneShot(clip);
         }
-        
-        //audioSources.clip = clip;
-        //audioSources.Play();
+    }
+
+    public void PlayClip(AudioClip clip)
+    {
+
+        audioSources.clip = clip;
+        audioSources.Play();
     }
 }

@@ -64,10 +64,11 @@ public class MicrophonOperator : MonoBehaviour
 
         if (startPosition < 0)
         {
-            redata = new float[-startPosition];
-            microphoneClip.GetData(redata, recordingLength + startPosition);
-
             sampleWindow += startPosition;
+
+            redata = new float[-startPosition];
+            microphoneClip.GetData(redata, startPosition + recordingLength);
+
             startPosition = 0;
         }
 

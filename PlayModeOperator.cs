@@ -3,14 +3,12 @@ using UnityEngine;
 
 public class PlayModeOperator : MonoBehaviour
 {
-    private double playRate = 0;
-    private double deltaPlayRate = 0;
-
     private double timer;
-    private double BPS;
-    private double BPM;
+    private double songPosition;
+    private double songPosInBeats;
     private double oldAudioTime = 0;
     private double currentTimer;
+    private int loopCount = 1;
 
     [SerializeField, Min(0)]
     private double notesSoundDelay = 0;
@@ -36,22 +34,21 @@ public class PlayModeOperator : MonoBehaviour
 
     void Update()
     {
+        Debuger.totalTimer2 += Time.deltaTime;
+
         if (melodies == null || melodies.Length == 0)
             return;
 
-        double deltaTime = AudioSettings.dspTime - oldAudioTime;
-        if (deltaTime <= 0)
+        songPosition = (float)(AudioSettings.dspTime - oldAudioTime);
+
+        if (songPosition <= 0)
             return;
-        Debuger.totalTimer += deltaTime;
+        Debuger.totalTimer = songPosition;
 
-        deltaTime *= CoreValuesHUB.beatsPerSecond;
+        songPosInBeats = songPosition / CoreValuesHUB.secondsPerBeat;
 
-        oldAudioTime = AudioSettings.dspTime;
-
-        deltaPlayRate = deltaTime / (double)Melody.NOTES_PER_TACT;
-        playRate += deltaPlayRate;
-
-        if (playRate >= 1)
+        Debug.Log($"playRate {songPosInBeats}; {songPosInBeats - Melody.NOTES_PER_TACT * loopCount}; loopCount {loopCount};");
+        if (songPosInBeats >= Melody.NOTES_PER_TACT * (1+loopCount))
         {
             ShiftAction?.Invoke();
             return;
@@ -59,12 +56,13 @@ public class PlayModeOperator : MonoBehaviour
 
         if(Debuger.totalTimer >= 30)
         {
-            Debug.Log($"totalTimer {Debuger.totalTimer}; noteCount {Debuger.noteCount}");
+            Debug.Log($"totalTimer {Debuger.totalTimer}; totalTimer {Debuger.totalTimer2}; noteCount {Debuger.noteCount}");
             Debuger.totalTimer -= 30;
+            Debuger.totalTimer2 -= 30;
             Debuger.noteCount = 0;
         }
 
-        CoreValuesHUB.MelodyPositionInRate.SetValue(playRate);
+        CoreValuesHUB.MelodyPositionInRate.SetValue((songPosInBeats - Melody.NOTES_PER_TACT * loopCount)/ (float)Melody.NOTES_PER_TACT);
 
         PlayNotes();
     }
@@ -73,7 +71,7 @@ public class PlayModeOperator : MonoBehaviour
     {
         foreach (var melody in melodies)
         {
-            AudioClip[] clip = melody.CheckNotes(playRate + notesDelay, deltaPlayRate);
+            AudioClip clip = melody.CheckNotes(songPosInBeats - Melody.NOTES_PER_TACT * loopCount + notesDelay);
             if(clip != null)
             {
                 audioOperator.PlayClip(clip);
@@ -83,8 +81,7 @@ public class PlayModeOperator : MonoBehaviour
 
     public void ShiftEvent()
     {
-        playRate -= 1;
-        CoreValuesHUB.MelodyPositionInRate.SetValue(playRate);
+        loopCount ++;
         ResetMelody();
     }
 
@@ -99,10 +96,11 @@ public class PlayModeOperator : MonoBehaviour
     public void ResetEvent()
     {
         oldAudioTime = AudioSettings.dspTime;
-        playRate = 0;
+        loopCount = 0;
+        CoreValuesHUB.MelodyPositionInRate.SetValue(0);
         Debuger.totalTimer = 0;
+        Debuger.totalTimer2 = 0;
         Debuger.noteCount = 0;
-        CoreValuesHUB.MelodyPositionInRate.SetValue(playRate);
         ResetMelody();
         logicCore.ResetMicrophone();
     }
