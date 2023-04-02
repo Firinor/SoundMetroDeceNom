@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class DiagramOperator : MonoBehaviour
 {
@@ -12,7 +13,7 @@ public class DiagramOperator : MonoBehaviour
     private LineRenderer lineRenderer;
 
     //volumePoints.x is sound value; volumePoints.y is position rate;
-    private List<Vector3> volumePoints;
+    private List<VolumePoint> volumePoints;
     //We start drawing diatram from step 200
     private int loudnessIndex = 200;
     [SerializeField]
@@ -52,7 +53,7 @@ public class DiagramOperator : MonoBehaviour
 
     private void LineRendererInitialization()
     {
-        volumePoints = new List<Vector3>();
+        volumePoints = new List<VolumePoint>();
 
         lineRenderer.startWidth = lineWidth;
         lineRenderer.endWidth = lineWidth;
@@ -90,9 +91,6 @@ public class DiagramOperator : MonoBehaviour
         float sampleStep = deltaSample / deltaStepsCount;
         float rateStep = deltaRate / deltaStepsCount;
 
-        Debug.Log($"deltaRate = {deltaRate}; deltaSample = {deltaSample}; sampleStep = {sampleStep};" +
-            $" rateStep = {rateStep}; deltaStepsCount = {deltaStepsCount}; CoreValuesHUB.melodyPositionInRate = {CoreValuesHUB.melodyPositionInRate};");
-
         if (deltaStepsCount <= 0 || sampleStep <= 0 || rateStep <= 0)
             return;
 
@@ -102,11 +100,9 @@ public class DiagramOperator : MonoBehaviour
             float xPosition = GetXPosition(oldRatePosition);
 
             float soundValue = microphonOperator.GetLoudness((int)deltaSample, (int)sampleStep);
-            Debug.Log($"soundValue = {soundValue}; xPosition = {xPosition}; oldRatePosition = {oldRatePosition};" +
-                $" deltaSample = {deltaSample};");
 
             DrawVolumePoint(soundValue, xPosition, oldRatePosition);
-            volumePoints.Add(new Vector3(soundValue, oldRatePosition, 0f));
+            volumePoints.Add(new VolumePoint { position = oldRatePosition, volume = soundValue });
 
             deltaSample += sampleStep;
             oldRatePosition += rateStep;
@@ -146,13 +142,13 @@ public class DiagramOperator : MonoBehaviour
 
     public void ResetEvent()
     {
-        Debug.Log("ResetEvent()");
         timeCursor.anchoredPosition = new Vector3(startPosition, 0f, 0f);
 
         ShiftLineRenderer();
 
         lineRenderer.positionCount = loudnessIndex;
         oldRatePosition = 0;
+        volumePoints.Clear();
     }
 
     private void ShiftLineRenderer()
@@ -181,28 +177,20 @@ public class DiagramOperator : MonoBehaviour
         float maxValue = 0;
         for (int i = 0; i < volumePoints.Count; i++)
         {
-            if (volumePoints[i].y >= noteCheckStartPosition
-                && volumePoints[i].y <= noteCheckEndPosition
-                && maxValue < volumePoints[i].x)
+            if (volumePoints[i].position >= noteCheckStartPosition
+                && volumePoints[i].position <= noteCheckEndPosition
+                && maxValue < volumePoints[i].volume)
             {
-                maxValue = volumePoints[i].x;
+                maxValue = volumePoints[i].volume;
             }
         }
 
         return maxValue;
     }
 
-    public float GetPositionInRate()
+    private struct VolumePoint
     {
-        float maxValue = 0;
-        for (int i = 0; i < volumePoints.Count; i++)
-        {
-            if (maxValue < volumePoints[i].y)
-            {
-                maxValue = volumePoints[i].y;
-            }
-        }
-
-        return maxValue;
+        public float position;
+        public float volume;
     }
 }

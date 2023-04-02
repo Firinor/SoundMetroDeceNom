@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class NoteBeltOperator : MonoBehaviour
 {
     [SerializeField]
     private NoteOperator[] notes;
-    private List<int> notesToCheck = new List<int>();
+    private int noteToCheck = 0;
 
-    private MicrophonOperator microphonOperator => (MicrophonOperator)CoreHUB.microphonOperator;
     private DiagramOperator diagramOperator => (DiagramOperator)CoreHUB.diagramOperator;
     private PlayModeOperator playModeOperator => (PlayModeOperator)CoreHUB.playModeOperator;
 
@@ -31,43 +28,46 @@ public class NoteBeltOperator : MonoBehaviour
 
     private void NoteCheck()
     {
-        for(int i = 0; i < notesToCheck.Count; i++)
+        float notePosition = playModeOperator.GetFirstMelodyNotePosition(noteToCheck);
+
+        if (!isNoteReadyToCheck(notePosition))
+            return;
+
+        float noteRatePosition = notePosition / (float)Melody.NOTES_PER_TACT;
+
+        NoteCheckResult result = MelodySuccessNoteCheck(noteRatePosition);
+
+        switch (result)
         {
-            float notePosition = playModeOperator.GetFirstMelodyNotePosition(notesToCheck[i]);
-
-            if (!isNoteReadyToCheck(notePosition))
+            case NoteCheckResult.None:
                 break;
-
-            NoteCheckResult result = MelodySuccessNoteCheck(notePosition);
-
-            switch (result)
-            {
-                case NoteCheckResult.None:
-                    continue;
-                case NoteCheckResult.Success:
-                    notes[notesToCheck[i]].SetCorrectNote();
-                    notesToCheck.Remove(notesToCheck[i]);
-                    break;
-                case NoteCheckResult.Fast:
-                case NoteCheckResult.Slow:
-                    notes[notesToCheck[i]].SetUncorrectNote(result);
-                    notesToCheck.Remove(notesToCheck[i]);
-                    break;
-                default:
-                    continue;
-            }
+            case NoteCheckResult.Success:
+                notes[noteToCheck].SetCorrectNote();
+                noteToCheck++;
+                break;
+            case NoteCheckResult.Fast:
+            case NoteCheckResult.Slow:
+                notes[noteToCheck].SetUncorrectNote(result);
+                noteToCheck++;
+                break;
+            default:
+                break;
         }
+
+        if(noteToCheck >= notes.Length)
+            noteToCheck -= notes.Length;
     }
 
     private bool isNoteReadyToCheck(float notePosition)
     {
         float noteCheckEndPosition = notePosition + endPosition;
 
-        return diagramOperator.GetPositionInRate() > noteCheckEndPosition;
+        return CoreValuesHUB.melodyPositionInBeats > noteCheckEndPosition;
     }
 
     public NoteCheckResult MelodySuccessNoteCheck(float notePosition)
     {
+
         float noteCheckStartPosition = notePosition + startPosition;
         float soundOnStartValue = diagramOperator.GetLoudness(noteCheckStartPosition - reactionInRate / 2, noteCheckStartPosition);
 
@@ -96,12 +96,11 @@ public class NoteBeltOperator : MonoBehaviour
 
     public void ResetEvent()
     {
-        notesToCheck.Clear();
+        noteToCheck = 0;
 
         for (int i = 0; i < notes.Length; i++)
         {
             notes[i].ResetNote();
-            notesToCheck.Add(i);
         }
     }
 

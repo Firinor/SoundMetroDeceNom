@@ -97,6 +97,10 @@ public class LogicCore : MonoBehaviour
                 CoreValuesHUB.Reaction.SetValue(newValue);
                 noteBeltOperator.ReflectEvent();
                 break;
+            case CoreValue.SoundShift:
+                CoreValuesHUB.SoundShift.SetValue(newValue / 100f);//%
+                noteBeltOperator.ReflectEvent();
+                break;
         }
     }
 

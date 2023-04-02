@@ -1,9 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Debuger : MonoBehaviour
 {
@@ -39,60 +34,58 @@ public class Debuger : MonoBehaviour
     //private float resetTimer = 5f;
     //private float timer = 0f;
 
-    void Awake()
-    {
-        oldAudioTime = AudioSettings.dspTime;
-        Application.targetFrameRate = 0;
-    }
+    //void Awake()
+    //{
+    //    oldAudioTime = AudioSettings.dspTime;
+    //    Application.targetFrameRate = 0;
+    //}
     //public void ResetEvent()
     //{
     //    timer = 0f;
     //    min = float.MaxValue; max = float.MinValue;
     //}
 
-    public void SetSpeed(Slider speed)
-    {
-        timer = speed.value;
-        BPS = 1 / timer;
-        BPM = BPS * 60;
-    }
+    //public void SetSpeed(Slider speed)
+    //{
+    //    timer = speed.value;
+    //    BPS = 1 / timer;
+    //    BPM = BPS * 60;
+    //}
 
     void Update()
     {
-        double delta = AudioSettings.dspTime - oldAudioTime;
+        //double delta = AudioSettings.dspTime - oldAudioTime;
 
-        
+        //if (delta > 0)
+        //{
+        //    totalTimer += delta;
+        //    currentTimer += delta;
+        //    oldAudioTime = AudioSettings.dspTime;
+        //}
 
-        if (delta > 0)
-        {
-            totalTimer += delta;
-            currentTimer += delta;
-            oldAudioTime = AudioSettings.dspTime;
-        }
+        //if (currentTimer > timer)
+        //{
+        //    noteCount++;
+        //    Debug.Log("Time left : " + totalTimer + "Notes : " + noteCount);
+        //    currentTimer -= timer;
 
-        if (currentTimer > timer)
-        {
-            noteCount++;
-            Debug.Log("Time left : " + totalTimer + "Notes : " + noteCount);
-            currentTimer -= timer;
+        //    if (noteIndex == 0)
+        //    {
+        //        audioSource.clip = clip1;
 
-            if (noteIndex == 0)
-            {
-                audioSource.clip = clip1;
-
-                audioSource.Play();
-            }
-            else
-            {
-                audioSource.clip = clip2;
-                audioSource.Play();
-            }
-            noteIndex++;
-            if(noteIndex == 8)
-            {
-                noteIndex = 0;
-            }
-        }
+        //        audioSource.Play();
+        //    }
+        //    else
+        //    {
+        //        audioSource.clip = clip2;
+        //        audioSource.Play();
+        //    }
+        //    noteIndex++;
+        //    if(noteIndex == 8)
+        //    {
+        //        noteIndex = 0;
+        //    }
+        //}
 
 
             //timer += Time.deltaTime;

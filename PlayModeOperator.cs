@@ -8,11 +8,7 @@ public class PlayModeOperator : MonoBehaviour
     private double songPosInBeats;
     private double oldAudioTime = 0;
     private double currentTimer;
-    private int loopCount = 1;
-
-    [SerializeField, Min(0)]
-    private double notesSoundDelay = 0;
-    private double notesDelay => -notesSoundDelay/100d;
+    private int loopCount = 0;
 
     public Melody[] melodies;
 
@@ -47,22 +43,24 @@ public class PlayModeOperator : MonoBehaviour
 
         songPosInBeats = songPosition / CoreValuesHUB.secondsPerBeat;
 
-        Debug.Log($"playRate {songPosInBeats}; {songPosInBeats - Melody.NOTES_PER_TACT * loopCount}; loopCount {loopCount};");
         if (songPosInBeats >= Melody.NOTES_PER_TACT * (1+loopCount))
         {
             ShiftAction?.Invoke();
             return;
         }
 
-        if(Debuger.totalTimer >= 30)
-        {
-            Debug.Log($"totalTimer {Debuger.totalTimer}; totalTimer {Debuger.totalTimer2}; noteCount {Debuger.noteCount}");
-            Debuger.totalTimer -= 30;
-            Debuger.totalTimer2 -= 30;
-            Debuger.noteCount = 0;
-        }
+        //if(Debuger.totalTimer >= 30)
+        //{
+        //    Debug.Log($"songPosition {songPosition}; totalTimer {Debuger.totalTimer};" +
+        //        $" totalTimer {Debuger.totalTimer2}; noteCount {Debuger.noteCount}");
+        //    Debuger.totalTimer -= 30;
+        //    Debuger.totalTimer2 -= 30;
+        //    Debuger.noteCount = 0;
+        //}
 
-        CoreValuesHUB.MelodyPositionInRate.SetValue((songPosInBeats - Melody.NOTES_PER_TACT * loopCount)/ (float)Melody.NOTES_PER_TACT);
+        double MelodyPositionInBeats = songPosInBeats - Melody.NOTES_PER_TACT * loopCount;
+        CoreValuesHUB.MelodyPositionInBeats.SetValue(MelodyPositionInBeats);
+        CoreValuesHUB.MelodyPositionInRate.SetValue(MelodyPositionInBeats / (float)Melody.NOTES_PER_TACT);
 
         PlayNotes();
     }
@@ -71,7 +69,7 @@ public class PlayModeOperator : MonoBehaviour
     {
         foreach (var melody in melodies)
         {
-            AudioClip clip = melody.CheckNotes(songPosInBeats - Melody.NOTES_PER_TACT * loopCount + notesDelay);
+            AudioClip clip = melody.CheckNotes(CoreValuesHUB.melodyPositionInBeats - CoreValuesHUB.soundShift);
             if(clip != null)
             {
                 audioOperator.PlayClip(clip);
@@ -82,6 +80,7 @@ public class PlayModeOperator : MonoBehaviour
     public void ShiftEvent()
     {
         loopCount ++;
+        CoreValuesHUB.MelodyPositionInRate.SetValue((songPosInBeats - Melody.NOTES_PER_TACT * loopCount) / (float)Melody.NOTES_PER_TACT);
         ResetMelody();
     }
 
