@@ -17,8 +17,6 @@ public class NoteBeltOperator : MonoBehaviour
     {
         CoreHUB.NoteBeltOperator.SetValue(this);
         enabled = CoreValuesHUB.playMode == PlayMode.Play;
-
-        playModeOperator.ShiftAction += ResetEvent;
     }
 
     private void Update()
@@ -33,7 +31,7 @@ public class NoteBeltOperator : MonoBehaviour
         if (!isNoteReadyToCheck(notePosition))
             return;
 
-        float noteRatePosition = notePosition / (float)Melody.NOTES_PER_TACT;
+        float noteRatePosition = notePosition / (float)Melody.LENGTH_IN_NOTES;
 
         NoteCheckResult result = MelodySuccessNoteCheck(noteRatePosition);
 

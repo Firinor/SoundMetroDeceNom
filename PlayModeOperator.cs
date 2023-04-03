@@ -7,7 +7,7 @@ public class PlayModeOperator : MonoBehaviour
     private double songPosition;
     private double songPosInBeats;
     private double oldAudioTime = 0;
-    private double currentTimer;
+    private double cursorPosition;
     private int loopCount = 0;
 
     public Melody[] melodies;
@@ -20,7 +20,7 @@ public class PlayModeOperator : MonoBehaviour
     private void Awake()
     {
         CoreHUB.PlayModeOperator.SetValue(this);
-        ShiftAction += ShiftEvent;
+        ShiftAction += NextTact;
     }
 
     private void Start()
@@ -42,8 +42,12 @@ public class PlayModeOperator : MonoBehaviour
         Debuger.totalTimer = songPosition;
 
         songPosInBeats = songPosition / CoreValuesHUB.secondsPerBeat;
+        SetCursorPositionCoreValue();
 
-        if (songPosInBeats >= Melody.NOTES_PER_TACT * (1+loopCount))
+        Debug.Log($"coreValuesHUB.CursorPositionInRate {CoreValuesHUB.cursorPositionInRate}");
+        songPosInBeats = songPosInBeats - CoreValuesHUB.soundShift;
+
+        if (songPosInBeats >= Melody.LENGTH_IN_NOTES * (1 + loopCount))
         {
             ShiftAction?.Invoke();
             return;
@@ -58,18 +62,37 @@ public class PlayModeOperator : MonoBehaviour
         //    Debuger.noteCount = 0;
         //}
 
-        double MelodyPositionInBeats = songPosInBeats - Melody.NOTES_PER_TACT * loopCount;
-        CoreValuesHUB.MelodyPositionInBeats.SetValue(MelodyPositionInBeats);
-        CoreValuesHUB.MelodyPositionInRate.SetValue(MelodyPositionInBeats / (float)Melody.NOTES_PER_TACT);
+        SetMelodyCoreValues();
 
         PlayNotes();
     }
 
+    private void SetCursorPositionCoreValue()
+    {
+        cursorPosition = songPosInBeats / (double)Melody.LENGTH_IN_NOTES - loopCount;
+
+        if (cursorPosition < 0)
+            cursorPosition += 1d;
+        if (cursorPosition > 1)
+            cursorPosition -= 1d;
+
+        CoreValuesHUB.CursorPositionInRate.SetValue(cursorPosition);
+    }
+
+    private void SetMelodyCoreValues()
+    {
+        double MelodyPositionInBeats = songPosInBeats - Melody.LENGTH_IN_NOTES * loopCount;
+        CoreValuesHUB.MelodyPositionInBeats.SetValue(MelodyPositionInBeats);
+        CoreValuesHUB.MelodyPositionInRate.SetValue(MelodyPositionInBeats / (float)Melody.LENGTH_IN_NOTES);
+    }
+
     private void PlayNotes()
     {
-        foreach (var melody in melodies)
+        foreach (Melody melody in melodies)
         {
-            AudioClip clip = melody.CheckNotes(CoreValuesHUB.melodyPositionInBeats - CoreValuesHUB.soundShift);
+            double songPosition = CoreValuesHUB.melodyPositionInBeats;
+
+            AudioClip clip = melody.CheckNote(songPosition);
             if(clip != null)
             {
                 audioOperator.PlayClip(clip);
@@ -77,11 +100,14 @@ public class PlayModeOperator : MonoBehaviour
         }
     }
 
-    public void ShiftEvent()
+    public void NextTact()
     {
         loopCount ++;
-        CoreValuesHUB.MelodyPositionInRate.SetValue((songPosInBeats - Melody.NOTES_PER_TACT * loopCount) / (float)Melody.NOTES_PER_TACT);
-        ResetMelody();
+        SetMelodyCoreValues();
+        foreach (Melody melody in melodies)
+        {
+            melody.MelodyNextTact();
+        }
     }
 
     private void ResetMelody()
@@ -106,6 +132,6 @@ public class PlayModeOperator : MonoBehaviour
 
     public float GetFirstMelodyNotePosition(int index)
     {
-        return melodies[0].GetNotePosition(index);
+        return melodies[0].GetNotePosition(index) - CoreValuesHUB.soundShift;
     }
 }

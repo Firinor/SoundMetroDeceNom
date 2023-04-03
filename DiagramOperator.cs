@@ -39,7 +39,6 @@ public class DiagramOperator : MonoBehaviour
     private float oldRatePosition = 0;
 
     private MicrophonOperator microphonOperator => (MicrophonOperator)CoreHUB.microphonOperator;
-    private PlayModeOperator playModeOperator => (PlayModeOperator)CoreHUB.playModeOperator;
 
     private void Awake()
     {
@@ -47,8 +46,6 @@ public class DiagramOperator : MonoBehaviour
         LineRendererInitialization();
 
         CoreValuesHUB.MelodyLengthInUnits.SetValue(endPosition - startPosition);
-
-        playModeOperator.ShiftAction += ResetEvent;
     }
 
     private void LineRendererInitialization()
@@ -77,7 +74,7 @@ public class DiagramOperator : MonoBehaviour
 
     private void DrawVolumeLine(float deltaSample)
     {
-        float newRatePosition = (float)CoreValuesHUB.melodyPositionInRate;
+        float newRatePosition = (float)CoreValuesHUB.cursorPositionInRate;
         float deltaRate = newRatePosition - oldRatePosition;
 
         if (deltaRate <= 0)
@@ -135,7 +132,7 @@ public class DiagramOperator : MonoBehaviour
         //    ResetEvent();
         //}
 
-        float xPosition = Mathf.Lerp(startPosition, endPosition, (float)CoreValuesHUB.melodyPositionInRate);
+        float xPosition = Mathf.Lerp(startPosition, endPosition, (float)CoreValuesHUB.cursorPositionInRate);
 
         timeCursor.anchoredPosition = new Vector3(xPosition, 0f, 0f);
     }

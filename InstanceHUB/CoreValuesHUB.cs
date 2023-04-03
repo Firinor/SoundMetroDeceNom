@@ -9,7 +9,7 @@ public static class CoreValuesHUB
 
     public static double melodyPositionInRate => MelodyPositionInRate.GetValue();
     public static double melodyPositionInBeats => MelodyPositionInBeats.GetValue();
-
+    public static double cursorPositionInRate => CursorPositionInRate.GetValue();
     public static double melodyLengthInSeconds => 4 / beatsPerSecond;//4 notes per tact
     public static float melodyLengthInUnits => MelodyLengthInUnits.GetValue();
 
@@ -27,6 +27,7 @@ public static class CoreValuesHUB
 
     public static InstanceCell<double> MelodyPositionInRate = new InstanceCell<double>();
     public static InstanceCell<double> MelodyPositionInBeats = new InstanceCell<double>();
+    public static InstanceCell<double> CursorPositionInRate = new InstanceCell<double>();
     public static InstanceCell<float> MelodyLengthInUnits = new InstanceCell<float>();
 
     public static InstanceCell<int> BeatsPerMinute = new InstanceCell<int>();

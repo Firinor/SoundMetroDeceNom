@@ -1,21 +1,17 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Melody
 {
     public const int NOTES_COUNT = 8;
-    public const int NOTES_PER_TACT = 4;
+    public const int LENGTH_IN_NOTES = 4;
 
     public Note[] melody;
-    public List<AudioClip> resultClips;
     public AudioSource AudioSource;
 
     private int nextIndex;
 
     public Melody()
     {
-        resultClips = new List<AudioClip>();
         SetNewDefaultMelody();
     }
 
@@ -23,7 +19,7 @@ public class Melody
     {
         melody = new Note[NOTES_COUNT];
 
-        float eighthShare = (float)NOTES_PER_TACT / (float)NOTES_COUNT;
+        float eighthShare = (float)LENGTH_IN_NOTES / (float)NOTES_COUNT;
         float positionShift = eighthShare / 2f;//half
 
         for (int i = 0; i < melody.Length; i++)
@@ -43,21 +39,21 @@ public class Melody
         }
     }
 
-    internal AudioClip CheckNotes(double songPosition)
+    internal AudioClip CheckNote(double songPosition)
     {
-        if(nextIndex >= melody.Length)
-            return null;
+        AudioClip result = null;
+        Debug.Log($"songPosition {songPosition}");
 
-        resultClips.Clear();
-
-        if (melody[nextIndex].position < songPosition)
+        if (nextIndex < melody.Length && songPosition > melody[nextIndex].position)
         {
+            Debug.Log($"nextIndex {nextIndex}; melody[nextIndex].position {melody[nextIndex].position};");
+            result = melody[nextIndex].clip;
+
             nextIndex++;
             Debuger.noteCount++;
-            return melody[nextIndex-1].clip;
         }
 
-        return null;
+        return result;
     }
 
     //private AudioClip CheckNotesFormTwoTakts(double cursorPosition, double deltaRate)
@@ -111,6 +107,11 @@ public class Melody
     }
 
     internal void ResetEvent()
+    {
+        SetNewDefaultMelody();
+    }
+
+    internal void MelodyNextTact()
     {
         nextIndex = 0;
     }

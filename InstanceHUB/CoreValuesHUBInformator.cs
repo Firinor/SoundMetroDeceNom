@@ -7,6 +7,7 @@ public class CoreValuesHUBInformator : MonoBehaviour
     public int BeatsPerMinute;
     public int DecibelGate;
     public int Reaction;
+    public int SoundShift;
 
     private void Awake()
     {
@@ -15,6 +16,7 @@ public class CoreValuesHUBInformator : MonoBehaviour
         CoreValuesHUB.BeatsPerMinute.SetValue(BeatsPerMinute);
         CoreValuesHUB.DecibelGate.SetValue(DecibelGate/100f);//%
         CoreValuesHUB.Reaction.SetValue(Reaction);
+        CoreValuesHUB.SoundShift.SetValue(SoundShift/100f);//%
 
         Destroy(this);
     }
