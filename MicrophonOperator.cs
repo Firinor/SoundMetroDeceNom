@@ -57,13 +57,22 @@ public class MicrophonOperator : MonoBehaviour
 
     public float GetLoudness(int minusPosition, int sampleWindow)
     {
+        if(minusPosition >= recordingLength)
+            return 0f;
+
         int startPosition = currentSampleCursor + minusPosition - sampleWindow;
+
+        if (startPosition >= recordingLength)
+            return 0f;
 
         float[] redata = null;
         float[] data = null;
 
         if (startPosition < 0)
         {
+            if (startPosition + recordingLength < 0)
+                return 0f;
+
             sampleWindow += startPosition;
 
             redata = new float[-startPosition];

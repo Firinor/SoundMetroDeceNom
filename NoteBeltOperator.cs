@@ -26,7 +26,7 @@ public class NoteBeltOperator : MonoBehaviour
 
     private void NoteCheck()
     {
-        float notePosition = playModeOperator.GetFirstMelodyNotePosition(noteToCheck);
+        float notePosition = playModeOperator.GetFirstMelodyNotePositionInRate(noteToCheck);
 
         if (!isNoteReadyToCheck(notePosition))
             return;
@@ -60,17 +60,20 @@ public class NoteBeltOperator : MonoBehaviour
     {
         float noteCheckEndPosition = notePosition + endPosition;
 
-        return CoreValuesHUB.melodyPositionInBeats > noteCheckEndPosition;
+        return CoreValuesHUB.cursorPositionInRate * (double)Melody.LENGTH_IN_NOTES > noteCheckEndPosition;
     }
 
     public NoteCheckResult MelodySuccessNoteCheck(float notePosition)
     {
-
+        
         float noteCheckStartPosition = notePosition + startPosition;
         float soundOnStartValue = diagramOperator.GetLoudness(noteCheckStartPosition - reactionInRate / 2, noteCheckStartPosition);
 
         if (soundOnStartValue < 0)
             return NoteCheckResult.None;
+
+        //Debug.Log($"notePosition {notePosition}; reactionInRate {reactionInRate}; noteCheckStartPosition {noteCheckStartPosition};" +
+        //    $" noteCheckSilencePosition {noteCheckStartPosition - reactionInRate / 2};");
 
         bool isStartSound = soundOnStartValue >= CoreValuesHUB.decibelGate;
 
@@ -79,6 +82,8 @@ public class NoteBeltOperator : MonoBehaviour
 
         float noteCheckEndPosition = notePosition + endPosition;
         float soundOnEndValue = diagramOperator.GetLoudness(noteCheckStartPosition, noteCheckEndPosition);
+
+        //Debug.Log($"noteCheckEndPosition {noteCheckEndPosition}; soundOnEndValue {soundOnEndValue};");
 
         if (soundOnEndValue < 0)
             return NoteCheckResult.None;
@@ -109,6 +114,8 @@ public class NoteBeltOperator : MonoBehaviour
         float reactionInUnit = melodyUnitsInSecond * (CoreValuesHUB.reaction / 1000f);
         reactionInRate = (CoreValuesHUB.reaction / 1000f) / (float)CoreValuesHUB.melodyLengthInSeconds;
 
+        //Debug.Log($"CoreValuesHUB.melodyLengthInSeconds {CoreValuesHUB.melodyLengthInSeconds}; reactionInUnit {reactionInUnit};" +
+        //    $"reactionInRate {reactionInRate}");
         for (int i = 0; i < notes.Length; i++)
         {
             notes[i].SetReflectPosition(reactionInUnit);

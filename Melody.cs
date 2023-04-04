@@ -42,11 +42,10 @@ public class Melody
     internal AudioClip CheckNote(double songPosition)
     {
         AudioClip result = null;
-        Debug.Log($"songPosition {songPosition}");
 
         if (nextIndex < melody.Length && songPosition > melody[nextIndex].position)
         {
-            Debug.Log($"nextIndex {nextIndex}; melody[nextIndex].position {melody[nextIndex].position};");
+            //Debug.Log($"nextIndex {nextIndex}; melody[nextIndex].position {melody[nextIndex].position};");
             result = melody[nextIndex].clip;
 
             nextIndex++;

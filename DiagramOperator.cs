@@ -127,11 +127,6 @@ public class DiagramOperator : MonoBehaviour
 
     private void MoveCursor()
     {
-        //if (CoreValuesHUB.melodyPositionInRate >= 1)
-        //{
-        //    ResetEvent();
-        //}
-
         float xPosition = Mathf.Lerp(startPosition, endPosition, (float)CoreValuesHUB.cursorPositionInRate);
 
         timeCursor.anchoredPosition = new Vector3(xPosition, 0f, 0f);
