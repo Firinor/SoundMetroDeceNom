@@ -14,7 +14,6 @@ public class MicrophonOperator : MonoBehaviour
     private void Awake()
     {
         CoreHUB.MicrophonOperator.SetValue(this);
-        CoreValuesHUB.SampleRate.SetValue(AudioSettings.outputSampleRate);
     }
 
     private void Start()
@@ -29,7 +28,7 @@ public class MicrophonOperator : MonoBehaviour
         microphoneClip = Microphone.Start(
             microphoneName,
             loop: true,
-            lengthSec,// melody have 4 notes. And min bpm is 1/min = 240sec lenght + 1 second of safe
+            lengthSec,
             AudioSettings.outputSampleRate);
 
         if (microphoneClip != null)

@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class DiagramOperator : MonoBehaviour
 {
@@ -12,7 +10,6 @@ public class DiagramOperator : MonoBehaviour
     [SerializeField]
     private LineRenderer lineRenderer;
 
-    //volumePoints.x is sound value; volumePoints.y is position rate;
     private List<VolumePoint> volumePoints;
     //We start drawing diatram from step 200
     private int loudnessIndex = 200;

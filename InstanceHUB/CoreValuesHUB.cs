@@ -5,9 +5,6 @@ public static class CoreValuesHUB
     public static PlayMode playMode => PlayMode.GetValue();
     public static Difficulty difficulty => Difficulty.GetValue();
 
-    public static int sampleRate => SampleRate.GetValue();
-
-    public static double melodyPositionInRate => MelodyPositionInRate.GetValue();
     public static double melodyPositionInBeats => MelodyPositionInBeats.GetValue();
     public static double cursorPositionInRate => CursorPositionInRate.GetValue();
     public static double melodyLengthInSeconds => 4 / beatsPerSecond;//4 notes per tact
@@ -23,9 +20,6 @@ public static class CoreValuesHUB
     public static InstanceCell<PlayMode> PlayMode = new InstanceCell<PlayMode>();
     public static InstanceCell<Difficulty> Difficulty = new InstanceCell<Difficulty>();
 
-    public static InstanceCell<int> SampleRate = new InstanceCell<int>();
-
-    public static InstanceCell<double> MelodyPositionInRate = new InstanceCell<double>();
     public static InstanceCell<double> MelodyPositionInBeats = new InstanceCell<double>();
     public static InstanceCell<double> CursorPositionInRate = new InstanceCell<double>();
     public static InstanceCell<float> MelodyLengthInUnits = new InstanceCell<float>();

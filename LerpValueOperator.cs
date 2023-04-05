@@ -41,9 +41,6 @@ public class LerpValueOperator : MonoBehaviour
     public void ChangeValue(bool isAddition)
     {
         slider.value += isAddition ? step : -step;
-        //if(beatsPerMinute < beatsStep) { beatsPerMinute = beatsStep; }
-        //if (beatsPerMinute > beatsPerMinuteMax) { beatsPerMinute = beatsPerMinuteMax; }
-        //RefreshTextBPM();
     }
 
     public void ChangeValue()

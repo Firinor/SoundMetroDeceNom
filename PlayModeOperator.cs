@@ -6,7 +6,6 @@ public class PlayModeOperator : MonoBehaviour
     private double timer;
     private double songPosition;
     private double songPosInBeats;
-    //private double songPosInBeats;
     private double oldAudioTime = 0;
     private double cursorPosition;
     private int loopCount = 0;
@@ -34,8 +33,6 @@ public class PlayModeOperator : MonoBehaviour
 
     void Update()
     {
-        Debuger.totalTimer2 += Time.deltaTime;
-
         if (melodies == null || melodies.Length == 0)
             return;
 
@@ -43,7 +40,6 @@ public class PlayModeOperator : MonoBehaviour
 
         if (songPosition <= 0)
             return;
-        Debuger.totalTimer = songPosition;
 
         songPosInBeats = songPosition / CoreValuesHUB.secondsPerBeat;
         SetCursorPositionCoreValue();
@@ -55,15 +51,6 @@ public class PlayModeOperator : MonoBehaviour
             ShiftAction?.Invoke();
             return;
         }
-
-        //if(Debuger.totalTimer >= 30)
-        //{
-        //    Debug.Log($"songPosition {songPosition}; totalTimer {Debuger.totalTimer};" +
-        //        $" totalTimer {Debuger.totalTimer2}; noteCount {Debuger.noteCount}");
-        //    Debuger.totalTimer -= 30;
-        //    Debuger.totalTimer2 -= 30;
-        //    Debuger.noteCount = 0;
-        //}
 
         SetMelodyCoreValues();
 
@@ -85,7 +72,6 @@ public class PlayModeOperator : MonoBehaviour
             diagramOperator.ResetEvent();
             noteBeltOperator.ResetEvent();
             cursorPosition -= 1d;
-            //Debug.Log("cursorPosition -");
         }
 
         CoreValuesHUB.CursorPositionInRate.SetValue(cursorPosition);
@@ -95,7 +81,7 @@ public class PlayModeOperator : MonoBehaviour
     {
         double MelodyPositionInBeats = songPosInBeats - Melody.LENGTH_IN_NOTES * loopCount;
         CoreValuesHUB.MelodyPositionInBeats.SetValue(MelodyPositionInBeats);
-        CoreValuesHUB.MelodyPositionInRate.SetValue(MelodyPositionInBeats / (float)Melody.LENGTH_IN_NOTES);
+        //CoreValuesHUB.MelodyPositionInRate.SetValue(MelodyPositionInBeats / (float)Melody.LENGTH_IN_NOTES);
     }
 
     private void PlayNotes()
@@ -135,10 +121,6 @@ public class PlayModeOperator : MonoBehaviour
         oldAudioTime = AudioSettings.dspTime;
         loopCount = 0;
         loopCountToDiagram = 0;
-        CoreValuesHUB.MelodyPositionInRate.SetValue(0);
-        Debuger.totalTimer = 0;
-        Debuger.totalTimer2 = 0;
-        Debuger.noteCount = 0;
         ResetMelody();
         logicCore.ResetMicrophone();
     }

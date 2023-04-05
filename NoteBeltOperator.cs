@@ -72,9 +72,6 @@ public class NoteBeltOperator : MonoBehaviour
         if (soundOnStartValue < 0)
             return NoteCheckResult.None;
 
-        //Debug.Log($"notePosition {notePosition}; reactionInRate {reactionInRate}; noteCheckStartPosition {noteCheckStartPosition};" +
-        //    $" noteCheckSilencePosition {noteCheckStartPosition - reactionInRate / 2};");
-
         bool isStartSound = soundOnStartValue >= CoreValuesHUB.decibelGate;
 
         if (isStartSound)
@@ -82,8 +79,6 @@ public class NoteBeltOperator : MonoBehaviour
 
         float noteCheckEndPosition = notePosition + endPosition;
         float soundOnEndValue = diagramOperator.GetLoudness(noteCheckStartPosition, noteCheckEndPosition);
-
-        //Debug.Log($"noteCheckEndPosition {noteCheckEndPosition}; soundOnEndValue {soundOnEndValue};");
 
         if (soundOnEndValue < 0)
             return NoteCheckResult.None;
@@ -110,12 +105,10 @@ public class NoteBeltOperator : MonoBehaviour
     public void ReflectEvent()
     {
         float melodyUnitsInSecond = CoreValuesHUB.melodyLengthInUnits / (float)CoreValuesHUB.melodyLengthInSeconds;
-        //reaction in milliseconds. It should be divided by 1000 to convert in seconds
+
         float reactionInUnit = melodyUnitsInSecond * (CoreValuesHUB.reaction / 1000f);
         reactionInRate = (CoreValuesHUB.reaction / 1000f) / (float)CoreValuesHUB.melodyLengthInSeconds;
 
-        //Debug.Log($"CoreValuesHUB.melodyLengthInSeconds {CoreValuesHUB.melodyLengthInSeconds}; reactionInUnit {reactionInUnit};" +
-        //    $"reactionInRate {reactionInRate}");
         for (int i = 0; i < notes.Length; i++)
         {
             notes[i].SetReflectPosition(reactionInUnit);

@@ -45,59 +45,12 @@ public class Melody
 
         if (nextIndex < melody.Length && songPosition > melody[nextIndex].position)
         {
-            //Debug.Log($"nextIndex {nextIndex}; melody[nextIndex].position {melody[nextIndex].position};");
             result = melody[nextIndex].clip;
 
             nextIndex++;
-            Debuger.noteCount++;
         }
 
         return result;
-    }
-
-    //private AudioClip CheckNotesFormTwoTakts(double cursorPosition, double deltaRate)
-    //{
-    //    double start = cursorPosition - deltaRate;
-    //    double start2 = start + 1;
-    //    double end = cursorPosition;
-
-    //    resultClips.Clear();
-    //    for (int i = 0; i < melody.Length; i++)
-    //    {
-    //        if (melody[i].position < start)
-    //            continue;
-
-    //        if (!melody[i].isPlayed && melody[i].position < end)
-    //        {
-    //            melody[i].isPlayed = true;
-    //            //Debug.Log($"TIME({Time.time}) cursorPosition {cursorPosition}, deltaRate {deltaRate}, melody[{i}] position {melody[i].position}");
-    //            resultClips.Add(melody[i].clip);
-    //            Debuger.noteCount++;
-    //        }
-    //        //notes of the previous tact
-    //        if (!melody[i].isPlayed && melody[i].position >= start2)
-    //        {
-    //            resultClips.Add(melody[i].clip);
-    //            Debuger.noteCount++;
-    //        }
-    //    }
-
-    //    if (resultClips.Count > 0)
-    //    {
-    //        return resultClips.ToArray();
-    //    }
-
-    //    return null;
-    //}
-
-    public Note GetNote(int noteIndex)
-    {
-        return melody[noteIndex];
-    }
-
-    internal float GetCurrentNotePosition(int noteIndex)
-    {
-        return GetNotePosition(noteIndex);
     }
 
     internal float GetNotePosition(int noteIndex)
