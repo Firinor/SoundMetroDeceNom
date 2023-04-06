@@ -12,6 +12,7 @@ public class PlayModeOperator : MonoBehaviour
     private int loopCountToDiagram = 0;
 
     public Melody[] melodies;
+    private AudioClip clip;
 
     public Action ShiftAction;
 
@@ -90,7 +91,7 @@ public class PlayModeOperator : MonoBehaviour
         {
             double songPosition = CoreValuesHUB.melodyPositionInBeats;
 
-            AudioClip clip = melody.CheckNote(songPosition);
+            clip = melody.CheckNote(songPosition);
             if(clip != null)
             {
                 audioOperator.PlayClip(clip);
